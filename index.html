@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NGUYÊN PHẠM - Tool Ghép Acc HOK V22 Final</title>
+  <title>NGUYÊN PHẠM - Tool Ghép Acc HOK V25 Final</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: #0b1120; color: #f8fafc; padding: 70px 12px 30px 12px; margin: 0; }
@@ -140,6 +140,14 @@
     .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
     .thumb-item .del-btn { position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.95); color: #fff; border: none; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; font-weight: bold; padding: 0; }
     .thumb-item .idx-tag { position: absolute; bottom: 0; left: 0; background: rgba(15, 23, 42, 0.85); color: #38bdf8; font-size: 10px; padding: 1px 4px; font-weight: bold; }
+
+    /* KHUNG XEM TRƯỚC CÁC NÚT ĐÃ TÁCH ĐƯỢC */
+    .detected-btn-box {
+      margin-top: 8px; padding: 6px 8px; background: #091326; border: 1px solid #f59e0b; border-radius: 6px; display: none;
+    }
+    .detected-btn-title { font-size: 11.5px; color: #facc15; font-weight: bold; margin-bottom: 5px; }
+    .detected-btn-list { display: flex; flex-wrap: wrap; gap: 5px; max-height: 120px; overflow-y: auto; }
+    .detected-btn-list canvas { width: 68px; height: 38px; border-radius: 4px; border: 1px solid #38bdf8; }
 
     .btn-wrap { text-align: center; margin: 16px 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
     button.main-btn { background: #10b981; color: white; border: none; padding: 13px 22px; font-size: 14.5px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; }
@@ -352,19 +360,18 @@
       <div id="thumb_skins" class="thumb-list"></div>
     </div>
 
-    <!-- 4. Nút Bấm (ĐÃ NÂNG CẤP THUẬT TOÁN DÒ TỰ ĐỘNG NHẠY 100%) -->
+    <!-- 4. Nút Bấm (RÀ TRỰC TIẾP CHỮ "ĐÃ SỞ HỮU" -> TÁCH LUÔN) -->
     <div class="box" style="border: 1.5px solid #f59e0b;">
       <div class="box-header">
-        <label>4. Ảnh Nút Bấm (Đã sửa lỗi nhận diện "Đã sở hữu" trên mọi màn hình):</label>
+        <label>4. Ảnh Nút Bấm (Rà thấy chữ "Đã sở hữu" là tách ngay lập tức):</label>
         <button class="clear-sec-btn" onclick="clearSection('buttons')">Xóa Nút</button>
       </div>
-      <select id="buttonFilterMode" style="margin-bottom:6px;">
-        <option value="owned_smart" selected>🔍 Tự động chỉ lấy Nút có chữ "Đã sở hữu" (Đã fix chuẩn mọi máy)</option>
-        <option value="no_price_188">✨ Lấy mọi Nút trừ các nút đang bán giá 188 Token</option>
-        <option value="all_buttons">📦 Lấy tất cả 12 Nút trên mỗi ảnh chụp</option>
-      </select>
       <input type="file" id="inp_buttons" accept="image/*" multiple onchange="addFiles('buttons', this.files, true)">
       <div id="thumb_buttons" class="thumb-list"></div>
+      <div id="detectedBtnBox" class="detected-btn-box">
+        <div id="detectedBtnTitle" class="detected-btn-title">✅ Đã tách được 0 Nút:</div>
+        <div id="detectedBtnList" class="detected-btn-list"></div>
+      </div>
     </div>
 
     <!-- 5. Nền -->
@@ -718,6 +725,33 @@ function loadFileToImg(file) {
   });
 }
 
+function refreshDetectedButtonsPreview() {
+  const box = document.getElementById('detectedBtnBox');
+  const title = document.getElementById('detectedBtnTitle');
+  const listEl = document.getElementById('detectedBtnList');
+  if (!box || !listEl) return;
+
+  if (store.buttons.length === 0) {
+    box.style.display = 'none';
+    listEl.innerHTML = '';
+    return;
+  }
+
+  const btns = extractOwnedButtons(store.buttons);
+  box.style.display = 'block';
+  title.innerText = `✅ Đã tách thành công ${btns.length} Nút từ ${store.buttons.length} ảnh chụp:`;
+  listEl.innerHTML = '';
+
+  btns.forEach((b) => {
+    const cv = document.createElement('canvas');
+    cv.width = 138;
+    cv.height = 76;
+    const cctx = cv.getContext('2d');
+    cctx.drawImage(b.img, b.sx, b.sy, b.sw, b.sh, 0, 0, cv.width, cv.height);
+    listEl.appendChild(cv);
+  });
+}
+
 async function addFiles(category, fileList, isMultiple) {
   if (!fileList || fileList.length === 0) return;
   const files = Array.from(fileList);
@@ -737,7 +771,13 @@ async function addFiles(category, fileList, isMultiple) {
   if (inp) inp.value = '';
 
   renderThumbs(category);
-  setStatus(`✅ Đã nạp ${store[category].length} ảnh vào mục [${category.toUpperCase()}]. Bấm ✖ nếu muốn xóa ảnh chọn nhầm!`);
+  if (category === 'buttons') {
+    refreshDetectedButtonsPreview();
+    const previewBtns = extractOwnedButtons(store.buttons);
+    setStatus(`✅ Đã nạp ${store.buttons.length} ảnh Nút ➔ Tách thành công ${previewBtns.length} Nút "Đã sở hữu"!`);
+  } else {
+    setStatus(`✅ Đã nạp ${store[category].length} ảnh vào mục [${category.toUpperCase()}]. Bấm ✖ nếu muốn xóa ảnh chọn nhầm!`);
+  }
 }
 
 function removeSingleFile(category, idx) {
@@ -745,6 +785,7 @@ function removeSingleFile(category, idx) {
     URL.revokeObjectURL(store[category][idx].url);
     store[category].splice(idx, 1);
     renderThumbs(category);
+    if (category === 'buttons') refreshDetectedButtonsPreview();
     setStatus(`🗑️ Đã xóa 1 ảnh khỏi mục [${category.toUpperCase()}]. Còn lại ${store[category].length} ảnh.`);
   }
 }
@@ -756,6 +797,7 @@ function clearSection(category) {
   const inp = document.getElementById('inp_' + category);
   if (inp) inp.value = '';
   renderThumbs(category);
+  if (category === 'buttons') refreshDetectedButtonsPreview();
   setStatus(`🗑️ Đã làm trống mục [${category.toUpperCase()}].`);
 }
 
@@ -784,6 +826,7 @@ function resetForNewAcc() {
     if (inp) inp.value = '';
     renderThumbs(cat);
   });
+  refreshDetectedButtonsPreview();
   document.getElementById('accCode').value = '';
   document.getElementById('resultImg').style.display = 'none';
   document.getElementById('saveGuide').style.display = 'none';
@@ -804,7 +847,7 @@ sigCv.width = 16; sigCv.height = 16;
 const sigCtx = sigCv.getContext('2d', { willReadFrequently: true });
 
 function getSignature(img, sx, sy, sw, sh) {
-  sigCtx.drawImage(img, sx + sw * 0.12, sy + sh * 0.22, sw * 0.76, sh * 0.68, 0, 0, 16, 16);
+  sigCtx.drawImage(img, sx + sw * 0.12, sy + sh * 0.18, sw * 0.76, sh * 0.68, 0, 0, 16, 16);
   const d = sigCtx.getImageData(0, 0, 16, 16).data;
   let sig = new Float32Array(256 * 3);
   for (let i = 0, j = 0; i < d.length; i += 4, j += 3) {
@@ -995,7 +1038,7 @@ function extractAllSkins(items) {
 }
 
 // ============================================================================
-// THUẬT TOÁN NHẬN DIỆN NÚT BẤM MỚI (ĐÃ FIX CHUẨN TRÊN MỌI MÀN HÌNH & ĐỘ PHÂN GIẢI)
+// THUẬT TOÁN RÀ TRỰC TIẾP CHỮ "ĐÃ SỞ HỮU" -> THẤY LÀ TÁCH NGAY LẬP TỨC
 // ============================================================================
 const DA_SO_HUU_TMPL = [
   [78,78,76,77,81,80,77,76,76,76,76,77,91,83,76,77,82,77,76,77,80,79,77,76],
@@ -1008,131 +1051,109 @@ const DA_SO_HUU_TMPL = [
   [117,110,87,93,112,111,86,78,100,112,99,97,113,100,77,78,102,88,102,98,113,112,87,101]
 ];
 const NUT_COLS = [[294/1024, 432/1024], [444/1024, 582/1024], [594/1024, 731/1024], [743/1024, 881/1024]];
-const NUT_ROWS = [
-  { artTop: 58/472, artBot: 149/472, stTop: 151/472, stBot: 171/472 },
-  { artTop: 194/472, artBot: 285/472, stTop: 288/472, stBot: 308/472 },
-  { artTop: 330/472, artBot: 421/472, stTop: 424/472, stBot: 444/472 }
-];
-const txtCv = document.createElement('canvas'); txtCv.width = 24; txtCv.height = 8;
-const txtCtx = txtCv.getContext('2d', { willReadFrequently: true });
-
-// Kiểm tra 1 thanh trạng thái với dịch chuyển dọc dy để chống lệch cuộn trang hoặc khác tỷ lệ màn hình
-function checkStatusStripAt(img, x1, x2, st1, st2, filterMode) {
-  if (filterMode === 'all_buttons') return true;
-
-  const w = x2 - x1, h = st2 - st1;
-  if (w <= 8 || h <= 4) return false;
-
-  // 1. Kiểm tra màu nền của thanh trạng thái:
-  // Nếu là nút bán giá "188" Token -> Thanh trạng thái có màu xanh da trời rất sáng (B > 175 và B - R > 85)
-  workCv.width = 36; workCv.height = 10;
-  workCtx.drawImage(img, x1 + w * 0.04, st1 + h * 0.18, w * 0.92, h * 0.64, 0, 0, 36, 10);
-  const stripData = workCtx.getImageData(0, 0, 36, 10).data;
-
-  let sumR = 0, sumG = 0, sumB = 0;
-  for (let i = 0; i < stripData.length; i += 4) {
-    sumR += stripData[i]; sumG += stripData[i+1]; sumB += stripData[i+2];
-  }
-  const nPix = 36 * 10;
-  const meanR = sumR / nPix, meanB = sumB / nPix;
-
-  // Loại bỏ ngay nút đang bán bằng Token "188" (nền xanh lam rực)
-  if (meanB > 172 && (meanB - meanR) > 80) return false;
-
-  if (filterMode === 'no_price_188') return true;
-
-  // 2. Đo hoạt động chữ ở 2 cánh trái/phải (cột 0..7 và 28..35 trên 36 cột) so với vùng trung tâm (cột 10..25):
-  // - "Được bán trong thời gian giới hạn": Chữ trải dài ra tận mép trái và mép phải -> wingActivity cao.
-  // - "Đã sở hữu": 2 cánh trái/phải phẳng lỳ (wingActivity rất thấp), vùng trung tâm (cột 10..25) có chữ rõ nét.
-  let wingDiff = 0, centerDiff = 0;
-  for (let y = 1; y < 9; y++) {
-    for (let x = 1; x < 35; x++) {
-      const i1 = (y * 36 + x) * 4, i0 = (y * 36 + x - 1) * 4;
-      const d = Math.abs(stripData[i1] - stripData[i0]) + Math.abs(stripData[i1+1] - stripData[i0+1]);
-      if (x <= 7 || x >= 28) wingDiff += d;
-      else if (x >= 10 && x <= 25) centerDiff += d;
-    }
-  }
-  wingDiff /= (8 * 14 * 2);
-  centerDiff /= (8 * 16 * 2);
-
-  // Nếu 2 cánh có chữ ("Được bán trong thời gian giới hạn") -> Loại bỏ
-  if (wingDiff > 5.2) return false;
-  // Phải có chữ ở vùng trung tâm
-  if (centerDiff < 3.0) return false;
-
-  // 3. Phân biệt "Đã sở hữu" (dài ~40% chiều ngang) với "Sự Kiện" (ngắn hơn, nằm gọn ở 35%..65%):
-  // Quét thử với chuẩn hóa độ sáng (Zero-mean MAE) để không bị ảnh hưởng khi ảnh tối/sáng hơn mẫu gốc:
-  let bestNormMae = 999;
-  const offsets = [-0.012, -0.006, 0, 0.006, 0.012]; // Quét dịch chuyển nhẹ theo trục Y
-  for (let dyRatio of offsets) {
-    const curSt1 = st1 + img.height * dyRatio;
-    txtCtx.drawImage(img, x1 + w * 0.29, curSt1 + h * 0.18, w * 0.41, h * 0.64, 0, 0, 24, 8);
-    const td = txtCtx.getImageData(0, 0, 24, 8).data;
-
-    // Tính độ sáng trung bình của mẫu hiện tại để bù trừ chênh lệch sáng tối giữa các thiết bị
-    let curGraySum = 0;
-    const curGrays = new Float32Array(192);
-    for (let k = 0; k < 192; k++) {
-      const idx = k * 4;
-      const g = 0.299 * td[idx] + 0.587 * td[idx+1] + 0.114 * td[idx+2];
-      curGrays[k] = g;
-      curGraySum += g;
-    }
-    const curMean = curGraySum / 192;
-    const tmplMean = 91.8; // Độ sáng trung bình của DA_SO_HUU_TMPL
-
-    let mae = 0;
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 24; c++) {
-        const gNorm = curGrays[r * 24 + c] - curMean + tmplMean;
-        mae += Math.abs(gNorm - DA_SO_HUU_TMPL[r][c]);
-      }
-    }
-    mae /= 192;
-    if (mae < bestNormMae) bestNormMae = mae;
-  }
-
-  // Ngoài ra kiểm tra vùng rìa của chữ "Đã sở hữu" (từ 0.28..0.35 và 0.64..0.71):
-  // Chữ "Đã sở hữu" có chữ "Đ" ở 0.30..0.35 và chữ "u" ở 0.64..0.69, trong khi "Sự Kiện" để trống vùng này!
-  let edgeWordDiff = 0;
-  for (let y = 1; y < 9; y++) {
-    for (let x of [10, 11, 12, 23, 24, 25]) {
-      const i1 = (y * 36 + x) * 4, i0 = (y * 36 + x - 1) * 4;
-      edgeWordDiff += Math.abs(stripData[i1] - stripData[i0]);
-    }
-  }
-  edgeWordDiff /= (8 * 6);
-
-  // Chấp nhận nếu khớp mẫu chuẩn hóa (bestNormMae < 13.5) HOẶC có đúng độ dài chữ của "Đã sở hữu" (edgeWordDiff > 4.2 và wingDiff < 4.5)
-  return (bestNormMae < 13.5) || (edgeWordDiff > 4.2 && wingDiff < 4.5);
-}
+const scanCv = document.createElement('canvas');
+const scanCtx = scanCv.getContext('2d', { willReadFrequently: true });
 
 function extractOwnedButtons(items) {
   let list = [];
-  const filterEl = document.getElementById('buttonFilterMode');
-  const filterMode = filterEl ? filterEl.value : 'owned_smart';
 
   items.forEach(it => {
     const img = it.img;
-    // Nếu người dùng tải ảnh chụp màn hình có tỷ lệ khác 16:9 (VD màn hình dài 20:9 của iPhone/Android),
-    // giao diện Cửa Hàng HOK căn giữa theo chiều cao (letterbox ngang hoặc cố định tỷ lệ theo H)
-    const H = img.height, W = img.width;
+    // Quy ảnh về kích thước chuẩn 1024 x 472 để trượt tìm chữ "Đã sở hữu" chính xác từng pixel
+    const W = 1024, H = 472;
+    scanCv.width = W; scanCv.height = H;
+    scanCtx.drawImage(img, 0, 0, W, H);
+    const fullData = scanCtx.getImageData(0, 0, W, H).data;
 
-    NUT_ROWS.forEach(row => {
-      const sy = H * row.artTop, sh = H * (row.artBot - row.artTop);
-      const st1 = H * row.stTop, st2 = H * row.stBot;
-      NUT_COLS.forEach(col => {
-        const sx = W * col[0], sw = W * (col[1] - col[0]);
-        if (checkStatusStripAt(img, sx, sx + sw, st1, st2, filterMode)) {
-          const sig = getSignature(img, sx, sy, sw, sh);
-          if (!isDupSig(sig, list, 14.0, 40)) {
-            list.push({ img, sx, sy, sw, sh, sig });
+    // Đổi sang mảng độ sáng Grayscale 1024x472 để rà siêu tốc
+    const gray = new Float32Array(W * H);
+    for (let i = 0, p = 0; p < W * H; p++, i += 4) {
+      gray[p] = 0.299 * fullData[i] + 0.587 * fullData[i+1] + 0.114 * fullData[i+2];
+    }
+
+    // Rà từ trên xuống dưới theo từng dòng y, rồi quét ngang từ trái qua phải (cột 0 -> cột 3)
+    // Chỉ rà từ y = 138 trở xuống (vì1 thẻ nút cần ~95px phía trên cho hình nút + tên nút và nằm dưới thanh tiêu đề Cửa hàng 52px)
+    const hitColsLastY = [-999, -999, -999, -999];
+
+    for (let y = 138; y <= H - 20; y++) {
+      for (let c = 0; c < 4; c++) {
+        // Nếu vừa mới bắt được nút ở cột này cách đây chưa tới 80px thì bỏ qua để không bắt trùng cùng 1 chữ
+        if (y - hitColsLastY[c] < 80) continue;
+
+        const colX1 = Math.round(W * NUT_COLS[c][0]);
+        const colW = Math.round(W * (NUT_COLS[c][1] - NUT_COLS[c][0])); // ~138px
+
+        // Vùng chứa chữ "Đã sở hữu" nằm ở chính giữa cột (x + 29%..70%, cao 13px)
+        const tx = Math.round(colX1 + colW * 0.29);
+        const tw = Math.round(colW * 0.41); // ~56px
+        const th = 13;
+
+        // So khớp trực tiếp với mẫu chữ "Đã sở hữu" (24x8)
+        let mae = 0;
+        for (let r = 0; r < 8; r++) {
+          const sy = y + Math.floor((r + 0.5) * th / 8);
+          const rowOff = sy * W;
+          for (let k = 0; k < 24; k++) {
+            const sx = tx + Math.floor((k + 0.5) * tw / 24);
+            mae += Math.abs(gray[rowOff + sx] - DA_SO_HUU_TMPL[r][k]);
           }
         }
-      });
-    });
+        mae /= 192;
+
+        // Hễ khớp mẫu chữ "Đã sở hữu" (sai số < 8.5) VÀ 2 bên mép trái/phải của chữ phẳng (không phải chữ dài "Được bán trong thời gian giới hạn")
+        if (mae < 8.5) {
+          // Kiểm tra nhanh mép trái (cách lề trái 10..28px) xem có phải nền phẳng không
+          let leftWingDiff = 0;
+          const lxStart = colX1 + 10;
+          for (let dy = 2; dy < 10; dy++) {
+            const rOff = (y + dy) * W;
+            for (let lx = lxStart; lx < lxStart + 18; lx++) {
+              leftWingDiff += Math.abs(gray[rOff + lx + 1] - gray[rOff + lx]);
+            }
+          }
+          leftWingDiff /= (8 * 18);
+
+          if (leftWingDiff < 3.5) {
+            // Tinh chỉnh nhẹ y trong khoảng y..y+3 để lấy điểm khớp nét nhất
+            let bestY = y, bestMae = mae;
+            for (let ny = y + 1; ny <= Math.min(H - 20, y + 3); ny++) {
+              let m2 = 0;
+              for (let r = 0; r < 8; r++) {
+                const sy = ny + Math.floor((r + 0.5) * th / 8);
+                const rowOff = sy * W;
+                for (let k = 0; k < 24; k++) {
+                  const sx = tx + Math.floor((k + 0.5) * tw / 24);
+                  m2 += Math.abs(gray[rowOff + sx] - DA_SO_HUU_TMPL[r][k]);
+                }
+              }
+              m2 /= 192;
+              if (m2 < bestMae) { bestMae = m2; bestY = ny; }
+            }
+
+            hitColsLastY[c] = bestY;
+
+            // TỌA ĐỘ CẮT NGAY LẬP TỨC PHẦN HÌNH NÚT NẰM PHÍA TRÊN CHỮ "ĐÃ SỞ HỮU":
+            // Chữ "Đã sở hữu" bắt đầu ở bestY -> Dải tên nút cao 24px nằm ngay trên -> Hình nút cao 73px nằm ngay trên dải tên
+            const artBot = bestY - 24;
+            const artTop = artBot - 73;
+
+            const scaleX = img.width / W;
+            const scaleY = img.height / H;
+            const cropX = colX1 * scaleX;
+            const cropW = colW * scaleX;
+            const cropY = artTop * scaleY;
+            const cropH = (artBot - artTop) * scaleY;
+
+            const sig = getSignature(img, cropX, cropY, cropW, cropH);
+            if (!isDupSig(sig, list, 13.5, 50)) {
+              list.push({ img, sx: cropX, sy: cropY, sw: cropW, sh: cropH, sig });
+            }
+          }
+        }
+      }
+    }
   });
+
   return list;
 }
 
@@ -1318,7 +1339,7 @@ async function generateMasterImage() {
 
   if (hasPartialSkinRow && remainingButtons.length > 0) {
     const emptyWidth = targetW - (remSkins * skinW);
-    const idealBtnW = (skinH / 2) * (138 / 91);
+    const idealBtnW = (skinH / 2) * (138 / 73);
     const btnColsToFit = Math.max(1, Math.round(emptyWidth / idealBtnW));
     const takeCount = Math.min(remainingButtons.length, btnColsToFit * 2);
     packedButtonsInSkinRow = remainingButtons.slice(0, takeCount);
@@ -1330,7 +1351,7 @@ async function generateMasterImage() {
 
   const defaultBtnCols = 8;
   const stdBtnW = targetW / defaultBtnCols;
-  const stdBtnH = Math.round(stdBtnW * (91 / 138));
+  const stdBtnH = Math.round(stdBtnW * (73 / 138));
   const btnRowsCount = Math.ceil(remainingButtons.length / defaultBtnCols);
   const btnSectionH = btnRowsCount * stdBtnH;
 
