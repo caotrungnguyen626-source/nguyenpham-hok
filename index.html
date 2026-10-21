@@ -1,9 +1,9 @@
-Put your HTML text here<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NGUYÊN PHẠM - Tool Ghép Acc HOK V26 Final</title>
+  <title>NGUYÊN PHẠM - Tool Ghép Acc HOK V28 Final</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: #0b1120; color: #f8fafc; padding: 70px 12px 30px 12px; margin: 0; }
@@ -140,6 +140,17 @@ Put your HTML text here<!DOCTYPE html>
     .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
     .thumb-item .del-btn { position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.95); color: #fff; border: none; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; font-weight: bold; padding: 0; }
     .thumb-item .idx-tag { position: absolute; bottom: 0; left: 0; background: rgba(15, 23, 42, 0.85); color: #38bdf8; font-size: 10px; padding: 1px 4px; font-weight: bold; }
+
+    /* SẮP XẾP THỨ TỰ: kéo thả / bấm chọn */
+    .reorder-hint { font-size: 11.5px; color: #fbbf24; margin: 4px 0 4px 0; line-height: 1.4; }
+    .thumb-item.reorderable, .detected-btn-item, .detected-skin-item { cursor: grab; }
+    .thumb-item img, .detected-btn-item canvas, .detected-skin-item canvas { pointer-events: none; }
+    .picked { outline: 3px solid #facc15 !important; outline-offset: 1px; transform: scale(1.07); z-index: 2; box-shadow: 0 0 10px rgba(250,204,21,.7); }
+    .drop-target { outline: 2px dashed #38bdf8 !important; outline-offset: 1px; }
+    .dragging { opacity: .35; }
+    .detected-skin-item { position: relative; width: 52px; height: 81px; border-radius: 4px; overflow: hidden; border: 1px solid #38bdf8; flex-shrink: 0; background: #000; }
+    .detected-skin-item canvas { width: 100%; height: 100%; display: block; }
+    .detected-btn-item .idx-tag, .detected-skin-item .idx-tag { position: absolute; bottom: 0; left: 0; background: rgba(15, 23, 42, 0.85); color: #38bdf8; font-size: 10px; padding: 0 4px; font-weight: bold; pointer-events: none; }
 
     /* KHUNG XEM TRƯỚC CÁC NÚT ĐÃ TÁCH ĐƯỢC */
     .detected-btn-box {
@@ -359,6 +370,11 @@ Put your HTML text here<!DOCTYPE html>
       </div>
       <input type="file" id="inp_skins" accept="image/*" multiple onchange="addFiles('skins', this.files, true)">
       <div id="thumb_skins" class="thumb-list"></div>
+      <div id="detectedSkinBox" class="detected-btn-box" style="border-color:#38bdf8;">
+        <div id="detectedSkinTitle" class="detected-btn-title" style="color:#7dd3fc;"></div>
+        <div class="reorder-hint">↔️ Sắp xếp: kéo thả skin sang vị trí khác, hoặc bấm chọn 1 skin (viền vàng) rồi bấm vào vị trí muốn chuyển tới. Bấm ✖ để bỏ skin.</div>
+        <div id="detectedSkinList" class="detected-btn-list" style="max-height:230px;"></div>
+      </div>
     </div>
 
     <!-- 4. Nút Bấm (ĐÃ FIX V26: TỰ ĐỘNG THÍCH ỨNG MỌI TỶ LỆ MÀN HÌNH & LẤY ĐỦ 100% NÚT "ĐÃ SỞ HỮU") -->
@@ -371,6 +387,7 @@ Put your HTML text here<!DOCTYPE html>
       <div id="thumb_buttons" class="thumb-list"></div>
       <div id="detectedBtnBox" class="detected-btn-box">
         <div id="detectedBtnTitle" class="detected-btn-title">✅ Đã tách được 0 Nút (Bấm ✖ trên nút bất kỳ nếu muốn bỏ bớt):</div>
+        <div class="reorder-hint">↔️ Sắp xếp: kéo thả nút sang vị trí khác, hoặc bấm chọn 1 nút (viền vàng) rồi bấm vào vị trí muốn chuyển tới.</div>
         <div id="detectedBtnList" class="detected-btn-list"></div>
       </div>
     </div>
@@ -727,58 +744,156 @@ function loadFileToImg(file) {
   });
 }
 
-function recomputeButtons() {
-  extractedButtonsCache = extractOwnedButtons(store.buttons);
-  renderDetectedButtonsPreview();
+// ============================================================================
+// SẮP XẾP THỨ TỰ: kéo thả (máy tính) hoặc bấm chọn 1 ảnh -> bấm vị trí đích (mọi thiết bị, kể cả điện thoại)
+// ============================================================================
+const reorderSel = {};
+
+function moveInArray(arr, from, to) {
+  if (from === to || from < 0 || to < 0 || from >= arr.length || to >= arr.length) return false;
+  const [it] = arr.splice(from, 1);
+  arr.splice(to, 0, it);
+  return true;
 }
 
-function removeDetectedButton(idx) {
-  if (idx >= 0 && idx < extractedButtonsCache.length) {
-    extractedButtonsCache.splice(idx, 1);
-    renderDetectedButtonsPreview();
-    setStatus(`🗑️ Đã bỏ 1 Nút. Còn lại ${extractedButtonsCache.length} Nút để ghép.`);
+function attachReorder(el, key, idx, getArr, onChange) {
+  el.draggable = true;
+  el.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', key + ':' + idx);
+    e.dataTransfer.effectAllowed = 'move';
+    el.classList.add('dragging');
+  });
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drop-target'); });
+  el.addEventListener('dragleave', () => el.classList.remove('drop-target'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('drop-target');
+    const parts = (e.dataTransfer.getData('text/plain') || '').split(':');
+    if (parts[0] !== key) return;
+    const from = parseInt(parts[1], 10);
+    if (moveInArray(getArr(), from, idx)) { reorderSel[key] = null; onChange(from, idx); }
+  });
+  el.addEventListener('click', e => {
+    if (e.target.closest('.del-btn')) return;
+    const sel = reorderSel[key];
+    if (sel === undefined || sel === null) {
+      reorderSel[key] = idx;
+      el.classList.add('picked');
+      setStatus(`👆 Đã chọn ảnh #${idx + 1} — bấm vào vị trí muốn chuyển tới (bấm lại chính nó để bỏ chọn).`, "#facc15");
+    } else if (sel === idx) {
+      reorderSel[key] = null;
+      el.classList.remove('picked');
+    } else if (moveInArray(getArr(), sel, idx)) {
+      reorderSel[key] = null;
+      onChange(sel, idx);
+    }
+  });
+}
+
+// ============================================================================
+// SKIN & NÚT ĐÃ TÁCH (xem trước, sắp xếp, xóa từng cái)
+// ============================================================================
+let extractedSkinsCache = [];
+
+function getExtractedCache(cat) { return cat === 'skins' ? extractedSkinsCache : extractedButtonsCache; }
+function setExtractedCache(cat, arr) { if (cat === 'skins') extractedSkinsCache = arr; else extractedButtonsCache = arr; }
+
+// Thêm ảnh mới: chỉ tách các ảnh MỚI rồi nối vào cuối (giữ nguyên thứ tự / lựa chọn bạn đã chỉnh)
+function appendExtracted(cat, newItems) {
+  if (newItems.length > 0) {
+    if (cat === 'skins') extractedSkinsCache = extractAllSkins(newItems, extractedSkinsCache);
+    else extractedButtonsCache = extractOwnedButtons(newItems, extractedButtonsCache);
+  }
+  renderExtractedPreview(cat);
+}
+
+// Xóa 1 ảnh chụp: chỉ bỏ các skin / nút tách ra từ ảnh đó
+function dropExtractedFor(cat, item) {
+  setExtractedCache(cat, getExtractedCache(cat).filter(c => c.img !== item.img));
+  renderExtractedPreview(cat);
+}
+
+// Đổi thứ tự ảnh chụp: sắp xếp lại các skin / nút theo thứ tự ảnh chụp mới
+function resortExtractedByScreenshots(cat) {
+  const order = new Map(store[cat].map((it, i) => [it.img, i]));
+  const indexed = getExtractedCache(cat).map((c, i) => ({ c, i }));
+  indexed.sort((a, b) => ((order.get(a.c.img) ?? 0) - (order.get(b.c.img) ?? 0)) || (a.i - b.i));
+  setExtractedCache(cat, indexed.map(o => o.c));
+  renderExtractedPreview(cat);
+}
+
+function clearExtracted(cat) {
+  setExtractedCache(cat, []);
+  renderExtractedPreview(cat);
+}
+
+function removeExtractedAt(cat, idx) {
+  const arr = getExtractedCache(cat);
+  if (idx >= 0 && idx < arr.length) {
+    arr.splice(idx, 1);
+    renderExtractedPreview(cat);
+    setStatus(`🗑️ Đã bỏ 1 ${cat === 'skins' ? 'Skin' : 'Nút'}. Còn lại ${arr.length} ${cat === 'skins' ? 'Skin' : 'Nút'} để ghép.`);
   }
 }
 
-function renderDetectedButtonsPreview() {
-  const box = document.getElementById('detectedBtnBox');
-  const title = document.getElementById('detectedBtnTitle');
-  const listEl = document.getElementById('detectedBtnList');
+function renderExtractedPreview(cat) {
+  const isSkin = (cat === 'skins');
+  const box = document.getElementById(isSkin ? 'detectedSkinBox' : 'detectedBtnBox');
+  const title = document.getElementById(isSkin ? 'detectedSkinTitle' : 'detectedBtnTitle');
+  const listEl = document.getElementById(isSkin ? 'detectedSkinList' : 'detectedBtnList');
   if (!box || !listEl) return;
 
-  if (store.buttons.length === 0) {
+  const key = 'x_' + cat;
+  reorderSel[key] = null;
+
+  if (store[cat].length === 0) {
     box.style.display = 'none';
     listEl.innerHTML = '';
     return;
   }
 
+  const arr = getExtractedCache(cat);
   box.style.display = 'block';
-  title.innerText = `✅ Đã tách thành công ${extractedButtonsCache.length} Nút (Bấm ✖ nếu muốn bỏ bớt nút nào):`;
+  title.innerText = isSkin
+    ? `✅ Đã tách thành công ${arr.length} Skin (Bấm ✖ nếu muốn bỏ bớt skin nào):`
+    : `✅ Đã tách thành công ${arr.length} Nút (Bấm ✖ nếu muốn bỏ bớt nút nào):`;
   listEl.innerHTML = '';
 
-  extractedButtonsCache.forEach((b, idx) => {
+  arr.forEach((b, idx) => {
     const wrap = document.createElement('div');
-    wrap.className = 'detected-btn-item';
+    wrap.className = isSkin ? 'detected-skin-item' : 'detected-btn-item';
     const cv = document.createElement('canvas');
-    cv.width = 138;
-    cv.height = 76;
-    const cctx = cv.getContext('2d');
-    cctx.drawImage(b.img, b.sx, b.sy, b.sw, b.sh, 0, 0, cv.width, cv.height);
+    cv.width = isSkin ? 117 : 138;
+    cv.height = isSkin ? 183 : 76;
+    cv.getContext('2d').drawImage(b.img, b.sx, b.sy, b.sw, b.sh, 0, 0, cv.width, cv.height);
 
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
     delBtn.className = 'del-btn';
     delBtn.style.cssText = 'position:absolute;top:1px;right:1px;background:rgba(239,68,68,0.95);color:#fff;border:none;width:16px;height:16px;border-radius:50%;font-size:10px;line-height:16px;text-align:center;cursor:pointer;font-weight:bold;padding:0;';
     delBtn.innerText = '✖';
-    delBtn.title = 'Bỏ nút này';
-    delBtn.onclick = () => removeDetectedButton(idx);
+    delBtn.title = isSkin ? 'Bỏ skin này' : 'Bỏ nút này';
+    delBtn.onclick = (e) => { e.stopPropagation(); removeExtractedAt(cat, idx); };
+
+    const tag = document.createElement('span');
+    tag.className = 'idx-tag';
+    tag.innerText = '#' + (idx + 1);
 
     wrap.appendChild(cv);
     wrap.appendChild(delBtn);
+    wrap.appendChild(tag);
+    attachReorder(wrap, key, idx, () => getExtractedCache(cat), (from, to) => {
+      renderExtractedPreview(cat);
+      setStatus(`↔️ Đã chuyển ${isSkin ? 'skin' : 'nút'} từ vị trí #${from + 1} sang #${to + 1}.`);
+    });
     listEl.appendChild(wrap);
   });
 }
 
+// ============================================================================
+// QUẢN LÝ FILE ẢNH
+// ============================================================================
 async function addFiles(category, fileList, isMultiple) {
   if (!fileList || fileList.length === 0) return;
   const files = Array.from(fileList);
@@ -789,18 +904,24 @@ async function addFiles(category, fileList, isMultiple) {
     store[category] = [];
   }
 
+  let newItems = [];
   for (let f of files) {
     const loaded = await loadFileToImg(f);
-    if (loaded) store[category].push(loaded);
+    if (loaded) { store[category].push(loaded); newItems.push(loaded); }
   }
 
   const inp = document.getElementById('inp_' + category);
   if (inp) inp.value = '';
 
   renderThumbs(category);
-  if (category === 'buttons') {
-    recomputeButtons();
-    setStatus(`✅ Đã nạp ${store.buttons.length} ảnh Nút ➔ Tách thành công ${extractedButtonsCache.length} Nút!`);
+  if (category === 'buttons' || category === 'skins') {
+    appendExtracted(category, newItems);
+    const n = getExtractedCache(category).length;
+    if (category === 'buttons') {
+      setStatus(`✅ Đã nạp ${store.buttons.length} ảnh Nút ➔ Tách thành công ${n} Nút! Kéo thả để sắp xếp thứ tự.`);
+    } else {
+      setStatus(`✅ Đã nạp ${store.skins.length} ảnh Skin ➔ Tách được ${n} Skin! Kéo thả để sắp xếp thứ tự.`);
+    }
   } else {
     setStatus(`✅ Đã nạp ${store[category].length} ảnh vào mục [${category.toUpperCase()}]. Bấm ✖ nếu muốn xóa ảnh chọn nhầm!`);
   }
@@ -808,10 +929,11 @@ async function addFiles(category, fileList, isMultiple) {
 
 function removeSingleFile(category, idx) {
   if (store[category] && store[category][idx]) {
-    URL.revokeObjectURL(store[category][idx].url);
+    const item = store[category][idx];
     store[category].splice(idx, 1);
     renderThumbs(category);
-    if (category === 'buttons') recomputeButtons();
+    if (category === 'buttons' || category === 'skins') dropExtractedFor(category, item);
+    URL.revokeObjectURL(item.url);
     setStatus(`🗑️ Đã xóa 1 ảnh khỏi mục [${category.toUpperCase()}]. Còn lại ${store[category].length} ảnh.`);
   }
 }
@@ -823,23 +945,35 @@ function clearSection(category) {
   const inp = document.getElementById('inp_' + category);
   if (inp) inp.value = '';
   renderThumbs(category);
-  if (category === 'buttons') recomputeButtons();
+  if (category === 'buttons' || category === 'skins') clearExtracted(category);
   setStatus(`🗑️ Đã làm trống mục [${category.toUpperCase()}].`);
 }
+
+const REORDER_CATS = ['skins', 'buttons', 'bgs', 'broadcasts', 'minions'];
 
 function renderThumbs(category) {
   const container = document.getElementById('thumb_' + category);
   if (!container) return;
+  const key = 't_' + category;
+  reorderSel[key] = null;
   container.innerHTML = '';
+  const canReorder = REORDER_CATS.includes(category) && store[category].length > 1;
   store[category].forEach((item, idx) => {
     const div = document.createElement('div');
-    div.className = 'thumb-item';
-    div.title = item.name;
+    div.className = 'thumb-item' + (canReorder ? ' reorderable' : '');
+    div.title = item.name + (canReorder ? ' (kéo thả hoặc bấm để đổi vị trí)' : '');
     div.innerHTML = `
-      <img src="${item.url}" alt="thumb">
+      <img src="${item.url}" alt="thumb" draggable="false">
       <button type="button" class="del-btn" onclick="removeSingleFile('${category}', ${idx})" title="Xóa ảnh này">✖</button>
       <span class="idx-tag">#${idx + 1}</span>
     `;
+    if (canReorder) {
+      attachReorder(div, key, idx, () => store[category], (from, to) => {
+        renderThumbs(category);
+        if (category === 'buttons' || category === 'skins') resortExtractedByScreenshots(category);
+        setStatus(`↔️ Đã chuyển ảnh #${from + 1} sang vị trí #${to + 1}.`);
+      });
+    }
     container.appendChild(div);
   });
 }
@@ -852,7 +986,8 @@ function resetForNewAcc() {
     if (inp) inp.value = '';
     renderThumbs(cat);
   });
-  recomputeButtons();
+  clearExtracted('skins');
+  clearExtracted('buttons');
   document.getElementById('accCode').value = '';
   document.getElementById('resultImg').style.display = 'none';
   document.getElementById('saveGuide').style.display = 'none';
@@ -1018,8 +1153,8 @@ function analyzeDisplaySkinLayout(img) {
   return boxes.length ? boxes : null;
 }
 
-function extractAllSkins(items) {
-  let cards = [];
+function extractAllSkins(items, existing) {
+  let cards = existing ? [...existing] : [];
 
   function pushCard(img, sx, sy, sw, sh) {
     const sig = getSignature(img, sx, sy, sw, sh);
@@ -1191,8 +1326,8 @@ function findOwnedLabels(gray, W, H) {
   return finalList;
 }
 
-function extractOwnedButtons(items) {
-  let list = [];
+function extractOwnedButtons(items, existing) {
+  let list = existing ? [...existing] : [];
   items.forEach(it => {
     const img = it.img;
     const H = 472;
@@ -1372,7 +1507,7 @@ async function generateMasterImage() {
   const stats = store.stats[0] ? store.stats[0].img : null;
   const gemImg = store.gem[0] ? store.gem[0].img : null;
 
-  const skins = extractAllSkins(store.skins);
+  const skins = store.skins.length > 0 ? [...extractedSkinsCache] : [];
   let buttons = store.buttons.length > 0 ? [...extractedButtonsCache] : [];
   const bgs = extractOwnedBgs(store.bgs);
   const broadcasts = extractGoldenItems(store.broadcasts);
