@@ -1,0 +1,2764 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NGUYÊN PHẠM - Tool Ghép Acc HOK V32 Final</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: #0b1120; color: #f8fafc; padding: 70px 12px 30px 12px; margin: 0; }
+    .container { max-width: 1240px; margin: auto; background: #1e293b; padding: 20px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+
+    /* 1. GÓC TRÊN MÀN HÌNH BÊN PHẢI */
+    .top-fixed-header {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      background: rgba(15, 23, 42, 0.96); border-bottom: 1.5px solid #38bdf8;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 18px; z-index: 8000; backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    .header-left-user { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #cbd5e1; }
+    .header-left-user .avatar-circle {
+      width: 30px; height: 30px; border-radius: 50%; background: #ea580c; color: #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
+    }
+    .header-right-service { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+    .service-slogan {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24); color: #0f172a;
+      padding: 6px 14px; border-radius: 20px; font-weight: 900; font-size: 13.5px;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); letter-spacing: 0.2px;
+    }
+    .zalo-top-btn {
+      background: #0068ff; color: #fff; text-decoration: none; padding: 6px 12px;
+      border-radius: 6px; font-size: 12.5px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s;
+    }
+    .zalo-top-btn:hover { background: #0052cc; }
+    .zalo-top-btn.box-btn { background: #10b981; }
+    .zalo-top-btn.box-btn:hover { background: #059669; }
+    .logout-top-btn {
+      background: #334155; color: #f8fafc; border: 1px solid #475569; padding: 6px 10px;
+      border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;
+    }
+    .logout-top-btn:hover { background: #ef4444; border-color: #ef4444; }
+
+    /* 2. CỬA SỔ ĐĂNG NHẬP GOOGLE ACCOUNT CHOOSER */
+    .google-auth-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.82);
+      display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 15px;
+      backdrop-filter: blur(5px);
+    }
+    .google-chooser-window {
+      background: #1e1f20; color: #e3e3e3; width: 100%; max-width: 450px;
+      border-radius: 12px; border: 1px solid #3c4043; overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.9); font-family: 'Segoe UI', Roboto, sans-serif;
+    }
+    .gc-header {
+      padding: 14px 20px; border-bottom: 1px solid #3c4043; display: flex; align-items: center; gap: 10px;
+      font-size: 14px; color: #e3e3e3; font-weight: 500;
+    }
+    .gc-body { padding: 28px 32px 24px 32px; }
+    .gc-title { font-size: 24px; font-weight: 400; color: #fff; margin: 0 0 8px 0; }
+    .gc-subtitle { font-size: 14px; color: #c4c7c5; margin: 0 0 24px 0; }
+    .gc-subtitle span { color: #8ab4f8; font-weight: 600; }
+
+    .gc-account-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+    .gc-account-item {
+      display: flex; align-items: center; gap: 14px; padding: 12px 14px;
+      border-radius: 8px; cursor: pointer; transition: 0.15s; border-bottom: 1px solid #2d2e30;
+    }
+    .gc-account-item:hover { background: #2d2e31; }
+    .gc-avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: #e65100; color: #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; flex-shrink: 0;
+    }
+    .gc-acc-info { text-align: left; overflow: hidden; flex: 1; }
+    .gc-acc-name { font-size: 14.5px; font-weight: 500; color: #e3e3e3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gc-acc-email { font-size: 12.5px; color: #9aa0a6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .gc-use-another {
+      display: flex; align-items: center; gap: 14px; padding: 13px 14px;
+      border-radius: 24px; background: #28292a; cursor: pointer; transition: 0.15s; margin-top: 6px;
+    }
+    .gc-use-another:hover { background: #35363a; }
+    .gc-use-another-icon {
+      width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #9aa0a6;
+      display: flex; align-items: center; justify-content: center; color: #e3e3e3; font-size: 15px;
+    }
+    .gc-use-another-text { font-size: 14px; font-weight: 500; color: #e3e3e3; }
+
+    .gc-new-form { display: none; margin-top: 14px; background: #131314; padding: 16px; border-radius: 10px; border: 1px solid #3c4043; }
+    .gc-input {
+      width: 100%; padding: 11px 12px; margin-bottom: 10px; border-radius: 6px;
+      border: 1px solid #5f6368; background: #1e1f20; color: #fff; font-size: 14px; outline: none;
+    }
+    .gc-input:focus { border-color: #8ab4f8; }
+    .gc-submit-btn {
+      width: 100%; padding: 10px; background: #8ab4f8; color: #0f172a; font-weight: bold;
+      border: none; border-radius: 20px; font-size: 14px; cursor: pointer;
+    }
+    .gc-submit-btn:hover { background: #aecbfa; }
+
+    .gc-footer {
+      padding: 16px 32px 20px 32px; font-size: 12px; color: #9aa0a6; line-height: 1.5; border-top: 1px solid #2d2e30;
+    }
+    .gc-footer a { color: #8ab4f8; text-decoration: none; }
+
+    /* 3. GIAO DIỆN CHÍNH CỦA TOOL GHÉP ẢNH */
+    .brand-setup-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(90deg, #0f172a, #1e293b); border: 1.5px solid #f59e0b;
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+    }
+    .brand-preview-pill {
+      background: #fff; padding: 5px 14px; border-radius: 8px; display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    }
+    .brand-preview-pill canvas { width: 190px; height: 62px; border-radius: 0; display: none; }
+    .brand-preview-pill[data-view="0"] { background: #162c54; }
+    .brand-preview-pill[data-view="1"] { background-color: #fff; background-image: linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%),linear-gradient(45deg,#cbd5e1 25%,transparent 25%,transparent 75%,#cbd5e1 75%); background-size: 16px 16px; background-position: 0 0, 8px 8px; }
+    .brand-preview-pill[data-view="2"] { background: #fff; }
+    .logo-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 8px; padding: 7px 10px; background: #0b1426; border: 1px dashed #f59e0b; border-radius: 8px; font-size: 12.5px; color: #e2e8f0; }
+    .logo-tools label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+    .logo-tools input[type=range] { width: 120px; padding: 0; margin: 0; }
+    #brandFilterInfo { color: #fbbf24; font-size: 12px; margin-top: 4px; min-height: 16px; }
+
+    .status-bar { background: #0f172a; border: 1.5px solid #10b981; color: #10b981; padding: 11px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 14px; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+      .box.full { grid-column: span 1 !important; }
+      .top-fixed-header { height: auto; padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
+      body { padding-top: 105px; }
+    }
+    .box { background: #334155; padding: 13px; border-radius: 10px; font-size: 13px; border: 1px solid #475569; position: relative; }
+    .box.full { grid-column: span 2; }
+    .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .box-header label { font-weight: bold; color: #7dd3fc; font-size: 13.5px; margin: 0; }
+    .clear-sec-btn { background: #ef4444; color: #fff; border: none; padding: 3px 9px; border-radius: 5px; font-size: 11px; cursor: pointer; font-weight: bold; }
+
+    input[type="file"], select, input[type="text"] {
+      width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; margin-bottom: 6px;
+    }
+
+    .thumb-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; max-height: 150px; overflow-y: auto; padding: 4px; background: #0f172a; border-radius: 6px; border: 1px dashed #475569; }
+    .thumb-list:empty { display: none; }
+    .thumb-item { position: relative; width: 68px; height: 46px; border-radius: 5px; overflow: hidden; border: 1px solid #64748b; background: #000; flex-shrink: 0; }
+    .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
+    .thumb-item .del-btn { position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.95); color: #fff; border: none; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; font-weight: bold; padding: 0; }
+    .thumb-item .idx-tag { position: absolute; bottom: 0; left: 0; background: rgba(15, 23, 42, 0.85); color: #38bdf8; font-size: 10px; padding: 1px 4px; font-weight: bold; }
+
+    /* SẮP XẾP THỨ TỰ: kéo thả / bấm chọn */
+    .reorder-hint { font-size: 11.5px; color: #fbbf24; margin: 4px 0 4px 0; line-height: 1.4; }
+    .thumb-item.reorderable, .detected-btn-item, .detected-skin-item { cursor: grab; }
+    .thumb-item img, .detected-btn-item canvas, .detected-skin-item canvas { pointer-events: none; }
+    .picked { outline: 3px solid #facc15 !important; outline-offset: 1px; transform: scale(1.07); z-index: 2; box-shadow: 0 0 10px rgba(250,204,21,.7); }
+    .drop-target { outline: 2px dashed #38bdf8 !important; outline-offset: 1px; }
+    .dragging { opacity: .35; }
+    .detected-skin-item { position: relative; width: 52px; height: 81px; border-radius: 4px; overflow: hidden; border: 1px solid #38bdf8; flex-shrink: 0; background: #000; }
+    .detected-skin-item canvas { width: 100%; height: 100%; display: block; }
+    .detected-btn-item .idx-tag, .detected-skin-item .idx-tag { position: absolute; bottom: 0; left: 0; background: rgba(15, 23, 42, 0.85); color: #38bdf8; font-size: 10px; padding: 0 4px; font-weight: bold; pointer-events: none; }
+
+    /* KHUNG XEM TRƯỚC CÁC NÚT ĐÃ TÁCH ĐƯỢC */
+    .detected-btn-box {
+      margin-top: 8px; padding: 6px 8px; background: #091326; border: 1px solid #f59e0b; border-radius: 6px; display: none;
+    }
+    .detected-btn-title { font-size: 11.5px; color: #facc15; font-weight: bold; margin-bottom: 5px; }
+    .detected-btn-list { display: flex; flex-wrap: wrap; gap: 6px; max-height: 150px; overflow-y: auto; }
+    .detected-btn-item { position: relative; width: 72px; height: 48px; border-radius: 4px; overflow: hidden; border: 1px solid #38bdf8; flex-shrink: 0; }
+    .detected-btn-item canvas { width: 100%; height: 100%; display: block; }
+    .detected-min-item { position: relative; width: 58px; height: 58px; border-radius: 4px; overflow: hidden; border: 1px solid #eab308; flex-shrink: 0; cursor: grab; background: #000; }
+    .detected-min-item canvas { width: 100%; height: 100%; display: block; pointer-events: none; }
+    .detected-min-item .idx-tag { position: absolute; bottom: 0; left: 0; background: rgba(15, 23, 42, 0.85); color: #facc15; font-size: 10px; padding: 0 4px; font-weight: bold; pointer-events: none; }
+
+    /* KHUNG XEM ẢNH TOÀN MÀN HÌNH (điện thoại: nhấn giữ ảnh để lưu vào Ảnh) */
+    .viewer-overlay { position: fixed; inset: 0; z-index: 100000; background: rgba(2, 6, 23, 0.97); display: none; flex-direction: column; }
+    .viewer-overlay.show { display: flex; }
+    .viewer-top { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; background: #064e3b; color: #ecfdf5; font-size: 13.5px; font-weight: bold; line-height: 1.4; }
+    .viewer-top button { background: #ef4444; color: #fff; border: none; border-radius: 8px; padding: 9px 14px; font-weight: bold; font-size: 14px; cursor: pointer; flex-shrink: 0; }
+    .viewer-body { flex: 1 1 auto; overflow: auto; -webkit-overflow-scrolling: touch; padding: 8px; }
+    .viewer-body img { width: 100%; height: auto; display: block; -webkit-touch-callout: default; -webkit-user-select: auto; user-select: auto; }
+
+    .btn-wrap { text-align: center; margin: 16px 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    button.main-btn { background: #10b981; color: white; border: none; padding: 13px 22px; font-size: 14.5px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+    button.main-btn:hover { background: #059669; }
+    button.dl-png { background: #3b82f6; }
+    button.next-acc { background: #f59e0b; color: #0f172a; }
+    button.tab-btn { background: #8b5cf6; }
+
+    .hint { font-size: 12px; color: #cbd5e1; margin-top: 2px; line-height: 1.4; }
+    .save-guide { background: #064e3b; border: 2px solid #10b981; color: #ecfdf5; padding: 12px; border-radius: 8px; text-align: center; margin: 12px 0; display: none; font-size: 13.5px; line-height: 1.5; }
+    #resultImg { max-width: 100%; border: 2px solid #38bdf8; border-radius: 8px; display: none; margin: 12px auto; box-shadow: 0 8px 25px rgba(0,0,0,0.8); }
+
+    /* CHỮ VÀNG GÓC TRÊN BÊN TRÁI */
+    .corner-brand {
+      position: fixed; top: 64px; left: 14px; z-index: 7000;
+      display: none; pointer-events: none;
+      font-family: 'Impact', 'Arial Narrow Bold', 'Segoe UI', sans-serif;
+      font-weight: 900; font-size: 20px; line-height: 1.25; letter-spacing: 0.5px;
+      color: #facc15; text-transform: uppercase;
+      text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 12px rgba(250,204,21,.5);
+    }
+    .corner-brand.show { display: block; animation: cbIn .5s ease; }
+    @keyframes cbIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: none; } }
+
+    /* POPUP CHÀO MỪNG SAU ĐĂNG NHẬP */
+    .welcome-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 9500;
+      display: none; align-items: center; justify-content: center; padding: 15px;
+      backdrop-filter: blur(4px);
+    }
+    .welcome-overlay.show { display: flex; }
+    .welcome-box {
+      background: linear-gradient(160deg, #0f172a, #1e293b); border: 2px solid #f59e0b;
+      border-radius: 16px; padding: 28px 26px; max-width: 460px; width: 100%; text-align: center;
+      box-shadow: 0 0 40px rgba(245,158,11,.35); animation: cbIn .4s ease;
+    }
+    .welcome-title {
+      font-size: 21px; font-weight: 900; color: #facc15; line-height: 1.35; margin: 0 0 18px 0;
+      text-shadow: 0 0 14px rgba(250,204,21,.45);
+    }
+    .welcome-link {
+      display: block; padding: 12px; border-radius: 10px; color: #fff; text-decoration: none;
+      font-weight: bold; font-size: 14.5px; margin-bottom: 10px; transition: .2s;
+    }
+    .welcome-link.zalo { background: #0068ff; }
+    .welcome-link.zalo:hover { background: #0052cc; }
+    .welcome-link.box { background: #10b981; }
+    .welcome-link.box:hover { background: #059669; }
+    .welcome-close {
+      margin-top: 6px; background: transparent; color: #94a3b8; border: 1px solid #475569;
+      padding: 8px 18px; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
+    .welcome-close:hover { background: #334155; color: #fff; }
+  </style>
+</head>
+<body>
+
+<div id="cornerBrand" class="corner-brand">
+  DỊCH VỤ HOK LIÊN HỆ NGUYÊN PHẠM<br>ZL:0335322401
+</div>
+
+<div id="welcomeOverlay" class="welcome-overlay">
+  <div class="welcome-box">
+    <h2 class="welcome-title">MỌI DỊCH VỤ HOK GLOBAL,<br>LIÊN HỆ NGUYÊN PHẠM</h2>
+    <a class="welcome-link zalo" href="https://zalo.me/0335322401" target="_blank">💬 Zalo: 0335322401</a>
+    <a class="welcome-link box" href="https://zalo.me/g/rmtzpw989" target="_blank">📦 Vào Box Acc Zalo: zalo.me/g/rmtzpw989</a>
+    <button type="button" class="welcome-close" onclick="closeWelcome()">Đóng &amp; bắt đầu ghép acc</button>
+  </div>
+</div>
+
+<div class="top-fixed-header">
+  <div class="header-left-user">
+    <div class="avatar-circle" id="topUserAvatar">N</div>
+    <span id="topUserEmail">Đang chờ đăng nhập...</span>
+    <button class="logout-top-btn" onclick="openGoogleChooser()">Đổi tài khoản</button>
+  </div>
+
+  <div class="header-right-service">
+    <div class="service-slogan">🔥 Mọi dịch vụ HOK, liên hệ Nguyên Phạm</div>
+    <a href="https://zalo.me/0335322401" target="_blank" class="zalo-top-btn">💬 Zalo: 0335322401</a>
+    <a href="https://zalo.me/g/rmtzpw989" target="_blank" class="zalo-top-btn box-btn">📦 Box Acc Zalo</a>
+  </div>
+</div>
+
+<div id="googleAuthOverlay" class="google-auth-overlay">
+  <div class="google-chooser-window">
+    <div class="gc-header">
+      <svg width="18" height="18" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      <span>Đăng nhập bằng Google</span>
+    </div>
+
+    <div class="gc-body">
+      <h3 class="gc-title">Chọn tài khoản</h3>
+      <p class="gc-subtitle">Tiếp tục tới <span>Nguyên Phạm: Hệ Thống Ghép Acc HOK</span></p>
+
+      <div id="gcAccountList" class="gc-account-list"></div>
+
+      <div class="gc-use-another" onclick="toggleNewAccountForm()">
+        <div class="gc-use-another-icon">👤</div>
+        <div class="gc-use-another-text">Sử dụng một tài khoản khác</div>
+      </div>
+
+      <div id="gcNewForm" class="gc-new-form">
+        <input type="text" id="gcInputName" class="gc-input" placeholder="Tên hiển thị của bạn (VD: Minh Tuấn)">
+        <input type="email" id="gcInputEmail" class="gc-input" placeholder="Nhập địa chỉ Email của bạn (VD: tuanhok@gmail.com)">
+        <input type="password" id="gcInputPass" class="gc-input" placeholder="Mật khẩu quản trị" style="display:none;" autocomplete="current-password">
+        <button type="button" class="gc-submit-btn" onclick="submitNewGoogleAccount()">Tiếp tục</button>
+      </div>
+    </div>
+
+    <div class="gc-footer">
+      Trước khi sử dụng công cụ này, bạn có thể liên hệ hỗ trợ trực tiếp qua <a href="https://zalo.me/0335322401" target="_blank">Zalo Nguyên Phạm (0335322401)</a> hoặc tham gia <a href="https://zalo.me/g/rmtzpw989" target="_blank">Box Acc Zalo</a>.
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="brand-setup-bar">
+    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+      <div class="brand-preview-pill" id="brandPreviewPill" data-view="0">
+        <canvas id="miniDogPreview" width="380" height="124"></canvas>
+        <span id="logoEmptyHint" style="color:#64748b; font-size:12px; font-weight:bold;">Chưa chọn logo</span>
+      </div>
+
+      <div>
+        <b style="color:#facc15; font-size:13.5px;">🖼️ Logo Của Bạn Trên Ảnh Ghép (ảnh gì cũng được):</b>
+        <div class="hint">Tải ảnh gì cũng được (vuông, chữ nhật, PNG trong suốt hoặc ảnh có nền ô vuông giả "trong suốt"). Web tự lọc bỏ nền, cắt sát logo và ghi nhớ cho lần sau:</div>
+        <input type="file" id="inp_brand_logo" accept="image/*" onchange="uploadBrandLogoFile(this.files)" style="width:auto; padding:4px 8px; font-size:12px; margin-top:4px; margin-bottom:0;">
+        <button type="button" class="clear-sec-btn" style="margin-top:4px; padding:5px 10px;" onclick="clearBrandLogo()">Xóa logo</button>
+
+        <div class="logo-tools">
+          <label><input type="checkbox" id="brandFilterOn" checked onchange="onBrandSetChange()"> ✨ Tự động lọc nền logo</label>
+          <label title="Tăng nếu còn sót nền xám/trắng, giảm nếu bị ăn mất phần hình">Độ nhạy: <input type="range" id="brandLevel" min="0" max="100" value="50" oninput="document.getElementById('brandLevelVal').innerText=this.value" onchange="onBrandSetChange()"><b id="brandLevelVal">50</b></label>
+          <label title="Xóa cả ô nền trắng kín bên trong chữ. Có thể ăn mất chữ/viền màu trắng — chỉ bật khi còn sót nền."><input type="checkbox" id="brandDeep" onchange="onBrandSetChange()"> Lọc sâu (lỗ kín)</label>
+          <button type="button" class="clear-sec-btn" style="background:#475569; padding:4px 10px;" onclick="cycleBrandView()">🎨 Đổi nền xem trước</button>
+        </div>
+        <div id="brandFilterInfo"></div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button type="button" style="background:#f59e0b; color:#0f172a; border:none; padding:9px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:12.5px;" onclick="resetForNewAcc()">🔄 Làm Mới Để Ghép Acc Tiếp Theo</button>
+    </div>
+  </div>
+
+  <div id="statusBar" class="status-bar">Sẵn sàng! Chọn ảnh bên dưới rồi bấm "GHÉP HOÀN CHỈNH (XUẤT ẢNH PNG)".</div>
+
+  <div class="grid">
+    <!-- 1. Hồ sơ & Tỉ lệ thắng -->
+    <div class="box">
+      <div class="box-header">
+        <label>1. Ảnh Hồ Sơ &amp; Khung Tỉ Lệ Thắng:</label>
+        <button class="clear-sec-btn" onclick="clearSection('profile'); clearSection('stats');">Xóa mục này</button>
+      </div>
+      <div class="hint">Chọn Ảnh Hồ Sơ chính:</div>
+      <input type="file" id="inp_profile" accept="image/*" onchange="addFiles('profile', this.files, false)">
+      <div id="thumb_profile" class="thumb-list"></div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top:4px;">
+        <div>
+          <span class="hint">Bộ lọc Tỉ lệ thắng:</span>
+          <select id="winrateFilter">
+            <option value="auto_60" selected>Hiện trên Hồ sơ (Ẩn nếu &lt; 60%)</option>
+            <option value="always">Luôn hiển thị khung Tỉ lệ thắng</option>
+            <option value="never">Không hiển thị</option>
+          </select>
+        </div>
+        <div>
+          <span class="hint">Mã số Acc (Tuỳ chọn):</span>
+          <input type="text" id="accCode" value="" placeholder="VD: Ms302">
+        </div>
+      </div>
+
+      <div style="margin-top:4px; padding:7px 9px; background:#0f172a; border:1px dashed #38bdf8; border-radius:7px;">
+        <span class="hint" style="color:#facc15; font-weight:bold;">✂️ Cắt phần "Điểm Nhấn &amp; Khách gần đây" ở đáy Hồ Sơ:</span>
+        <select id="profileBottomCrop" onchange="onProfileCropModeChange()" style="margin-top:3px; margin-bottom:4px;">
+          <option value="auto" selected>Tự động (Tự cắt qua Điểm Nhấn khi phóng to Hồ Sơ vừa khung / giữ nếu có Hiệu ứng đè đáy)</option>
+          <option value="crop_highlight">Luôn cắt bỏ phần Điểm Nhấn &amp; Khách gần đây (Chỉ lấy tới hết hàng Trận Đấu / SKIN)</option>
+          <option value="keep_full">Giữ nguyên 100% chiều cao Hồ Sơ gốc</option>
+        </select>
+        <div id="cropPctWrap" style="display:flex; align-items:center; gap:8px; font-size:12px; color:#cbd5e1;">
+          <span>Mức cắt đáy Hồ Sơ (<b id="lblCropPct" style="color:#38bdf8;">76</b>% chiều cao):</span>
+          <input type="range" id="rngCropPct" min="68" max="92" step="0.5" value="76" style="flex:1; accent-color:#38bdf8;" oninput="document.getElementById('lblCropPct').innerText=this.value">
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:6px;">Chọn Ảnh Chỉ Số (Tự cắt đúng 3 mục: Trận Đấu, Tỉ Lệ Thắng, Điểm Số):</div>
+      <input type="file" id="inp_stats" accept="image/*" onchange="addFiles('stats', this.files, false)">
+      <div id="thumb_stats" class="thumb-list"></div>
+    </div>
+
+    <!-- 2. Cột Skin & Điểm Đá Tím -->
+    <div class="box">
+      <div class="box-header">
+        <label>2. Bố Cục Cột Skin &amp; Ảnh Điểm Đá Tím:</label>
+        <button class="clear-sec-btn" onclick="clearSection('gem');">Xóa Đá Tím</button>
+      </div>
+      <div>
+        <div>
+          <span class="hint">Số Skin trên 1 hàng:</span>
+          <select id="colsOut">
+            <option value="8">8 Skin / hàng (To rõ)</option>
+            <option value="10" selected>10 Skin / hàng (Chuẩn mẫu)</option>
+            <option value="12">12 Skin / hàng</option>
+            <option value="16">16 Skin / hàng (Nhỏ gọn)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:8px; padding:8px; border:1.5px solid #8b5cf6; border-radius:8px; background:#1e1b4b;">
+        <span class="hint" style="color:#c4b5fd; font-weight:bold;">🖼️ Chế độ ghép ảnh:</span>
+        <select id="layoutMode" onchange="onLayoutModeChange()">
+          <option value="classic" selected>📏 Cổ điển (như cũ — ảnh dài theo chiều dọc)</option>
+          <option value="wide">↔️ Ảnh rộng (nhiều skin / hàng — ảnh bớt dài)</option>
+        </select>
+        <div id="wideOpts" style="display:none;">
+          <span class="hint">Độ rộng ảnh:</span>
+          <select id="wideFactor" onchange="onLayoutModeChange()">
+            <option value="auto" selected>Tự động (vừa đủ để ảnh không bị dài)</option>
+            <option value="1.5">Rộng ×1.5</option>
+            <option value="2">Rộng ×2</option>
+            <option value="2.5">Rộng ×2.5</option>
+            <option value="3">Rộng ×3</option>
+          </select>
+          <span class="hint" style="color:#facc15; font-weight:bold;">📐 Bố cục Hồ Sơ ở chế độ rộng:</span>
+          <select id="wideProfileMode" onchange="onLayoutModeChange()">
+            <option value="auto_smart" selected>✨ Tự động: Xích Hồ Sơ sát trái để chèn Hiệu ứng (Hạ/Biến về/Thông báo/Nền) + Nút bấm bên phải; nếu trống ➔ Phóng to Hồ Sơ vừa khít khung &amp; cắt qua Điểm Nhấn</option>
+            <option value="zoom_full">🔍 Luôn phóng to Hồ Sơ vừa khít 100% khung hình &amp; cắt qua Điểm Nhấn (Hiệu ứng đè lên góc dưới Hồ Sơ)</option>
+            <option value="left_panel">⬅️ Luôn xích Hồ Sơ sát trái hết mức, dành bên phải cho Hiệu ứng hạ, Biến về, Thông báo hạ, Nút bấm</option>
+          </select>
+          <div class="hint" style="color:#c4b5fd;">Khi bên phải không có mục nào để chèn, web tự động phóng to Hồ Sơ vừa khít toàn khung và cắt bỏ phần Điểm Nhấn bên dưới để không bị trống 2 bên!</div>
+        </div>
+      </div>
+
+      <div style="margin-top:6px;">
+        <div>
+          <span class="hint">Ảnh Điểm Đá Tím (chọn ảnh màn hình Rút, web tự cắt đúng phần May mắn):</span>
+          <input type="file" id="inp_gem" accept="image/*" onchange="addFiles('gem', this.files, false)">
+          <div id="thumb_gem" class="thumb-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Skin Tướng -->
+    <div class="box full" style="border: 2px solid #38bdf8;">
+      <div class="box-header">
+        <label>3. Ảnh Chụp Màn Hình Skin Tướng (Bấm ✖ trên ảnh nhỏ nếu muốn xóa ảnh chọn nhầm):</label>
+        <button class="clear-sec-btn" onclick="clearSection('skins')">Xóa hết ảnh Skin</button>
+      </div>
+      <input type="file" id="inp_skins" accept="image/*" multiple onchange="addFiles('skins', this.files, true)">
+      <div id="thumb_skins" class="thumb-list"></div>
+      <div id="detectedSkinBox" class="detected-btn-box" style="border-color:#38bdf8;">
+        <div id="detectedSkinTitle" class="detected-btn-title" style="color:#7dd3fc;"></div>
+        <div class="reorder-hint">↔️ Sắp xếp: kéo thả skin sang vị trí khác, hoặc bấm chọn 1 skin (viền vàng) rồi bấm vào vị trí muốn chuyển tới. Bấm ✖ để bỏ skin.</div>
+        <div id="detectedSkinList" class="detected-btn-list" style="max-height:230px;"></div>
+      </div>
+    </div>
+
+    <!-- 4. Nút Bấm -->
+    <div class="box" style="border: 1.5px solid #f59e0b;">
+      <div class="box-header">
+        <label>4. Ảnh Nút Bấm (Tự động lấy đủ 100% Nút "Đã sở hữu" mọi màn hình):</label>
+        <button class="clear-sec-btn" onclick="clearSection('buttons')">Xóa Nút</button>
+      </div>
+      <input type="file" id="inp_buttons" accept="image/*" multiple onchange="addFiles('buttons', this.files, true)">
+      <div id="thumb_buttons" class="thumb-list"></div>
+      <div id="detectedBtnBox" class="detected-btn-box">
+        <div id="detectedBtnTitle" class="detected-btn-title">✅ Đã tách được 0 Nút (Bấm ✖ trên nút bất kỳ nếu muốn bỏ bớt):</div>
+        <div class="reorder-hint">↔️ Sắp xếp: kéo thả nút sang vị trí khác, hoặc bấm chọn 1 nút (viền vàng) rồi bấm vào vị trí muốn chuyển tới.</div>
+        <div id="detectedBtnList" class="detected-btn-list"></div>
+      </div>
+    </div>
+
+    <!-- 5. Nền -->
+    <div class="box" style="border: 1.5px solid #ec4899;">
+      <div class="box-header">
+        <label>5. Ảnh Nền Tải Trận (Đã mở khóa):</label>
+        <button class="clear-sec-btn" onclick="clearSection('bgs')">Xóa Nền</button>
+      </div>
+      <input type="file" id="inp_bgs" accept="image/*" multiple onchange="addFiles('bgs', this.files, true)">
+      <div id="thumb_bgs" class="thumb-list"></div>
+    </div>
+
+    <!-- 6. Thông Báo Hạ -->
+    <div class="box" style="border: 1.5px solid #eab308;">
+      <div class="box-header">
+        <label>6. Ảnh Thông Báo Hạ / Hiệu Ứng Hạ (Chỉ lấy Khung Vàng):</label>
+        <button class="clear-sec-btn" onclick="clearSection('broadcasts')">Xóa Thông báo</button>
+      </div>
+      <input type="file" id="inp_broadcasts" accept="image/*" multiple onchange="addFiles('broadcasts', this.files, true)">
+      <div id="thumb_broadcasts" class="thumb-list"></div>
+      <div id="detectedBroadcastBox" class="detected-btn-box" style="border-color:#eab308;">
+        <div id="detectedBroadcastTitle" class="detected-btn-title"></div>
+        <div class="reorder-hint">↔️ Sắp xếp: kéo thả sang vị trí khác, hoặc bấm chọn 1 cái (viền vàng) rồi bấm vào vị trí muốn chuyển tới. Bấm ✖ để bỏ.</div>
+        <div id="detectedBroadcastList" class="detected-btn-list"></div>
+      </div>
+    </div>
+
+    <!-- 7. Tiểu Binh -->
+    <div class="box" style="border: 1.5px solid #eab308;">
+      <div class="box-header">
+        <label>7. Ảnh Tiểu Binh / Skin Lính (Tự động CHỈ lấy thẻ ghi "Đã sở hữu", mọi loại khung):</label>
+        <button class="clear-sec-btn" onclick="clearSection('minions')">Xóa Lính</button>
+      </div>
+      <input type="file" id="inp_minions" accept="image/*" multiple onchange="addFiles('minions', this.files, true)">
+      <div id="thumb_minions" class="thumb-list"></div>
+      <div id="detectedMinionBox" class="detected-btn-box" style="border-color:#eab308;">
+        <div id="detectedMinionTitle" class="detected-btn-title"></div>
+        <div class="reorder-hint">↔️ Sắp xếp: kéo thả skin lính sang vị trí khác, hoặc bấm chọn 1 cái (viền vàng) rồi bấm vào vị trí muốn chuyển tới. Bấm ✖ để bỏ.</div>
+        <div id="detectedMinionList" class="detected-btn-list"></div>
+      </div>
+    </div>
+
+    <!-- 8. Biến Về -->
+    <div class="box" style="border: 1.5px solid #06b6d4;">
+      <div class="box-header">
+        <label>8. Ảnh Biến Về (Chỉ lấy Khung Vàng, giống Thông Báo Hạ):</label>
+        <button class="clear-sec-btn" onclick="clearSection('recalls')">Xóa</button>
+      </div>
+      <input type="file" id="inp_recalls" accept="image/*" multiple onchange="addFiles('recalls', this.files, true)">
+      <div id="thumb_recalls" class="thumb-list"></div>
+      <div id="detectedRecallBox" class="detected-btn-box" style="border-color:#06b6d4;">
+        <div id="detectedRecallTitle" class="detected-btn-title"></div>
+        <div class="reorder-hint">↔️ Sắp xếp: kéo thả sang vị trí khác, hoặc bấm chọn 1 cái (viền vàng) rồi bấm vào vị trí muốn chuyển tới. Bấm ✖ để bỏ.</div>
+        <div id="detectedRecallList" class="detected-btn-list"></div>
+      </div>
+    </div>
+
+    <!-- 9. Gia Tốc -->
+    <div class="box" style="border: 1.5px solid #22c55e;">
+      <div class="box-header">
+        <label>9. Ảnh Gia Tốc (Chỉ lấy Khung Vàng, giống Thông Báo Hạ):</label>
+        <button class="clear-sec-btn" onclick="clearSection('speeds')">Xóa</button>
+      </div>
+      <input type="file" id="inp_speeds" accept="image/*" multiple onchange="addFiles('speeds', this.files, true)">
+      <div id="thumb_speeds" class="thumb-list"></div>
+      <div id="detectedSpeedBox" class="detected-btn-box" style="border-color:#22c55e;">
+        <div id="detectedSpeedTitle" class="detected-btn-title"></div>
+        <div class="reorder-hint">↔️ Sắp xếp: kéo thả sang vị trí khác, hoặc bấm chọn 1 cái (viền vàng) rồi bấm vào vị trí muốn chuyển tới. Bấm ✖ để bỏ.</div>
+        <div id="detectedSpeedList" class="detected-btn-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="btn-wrap">
+    <button type="button" class="main-btn" id="btnRender">🚀 GHÉP HOÀN CHỈNH (XUẤT ẢNH .PNG)</button>
+    <button type="button" class="main-btn dl-png" id="btnDownloadPng">📥 TẢI ẢNH .PNG / LƯU VÀO ẢNH (ĐIỆN THOẠI)</button>
+    <button type="button" class="main-btn next-acc" id="btnNextAcc">🔄 ĐÃ LƯU XONG ➔ GHÉP TIẾP ACC MỚI</button>
+    <button type="button" class="main-btn tab-btn" id="btnOpenTab">🌐 MỞ ẢNH TOÀN MÀN HÌNH / TAB MỚI</button>
+  </div>
+
+  <div id="saveGuide" class="save-guide">
+    📱 <b>TRÊN ĐIỆN THOẠI:</b> Bấm nút <b>"TẢI ẢNH .PNG / LƯU VÀO ẢNH"</b> ➔ iPhone sẽ hiện bảng chia sẻ, chọn <b>"Lưu hình ảnh"</b> là ảnh vào thẳng <b>Ảnh (Photos)</b>. Nếu máy không hiện bảng, ảnh sẽ mở toàn màn hình ➔ <b>nhấn giữ vào ảnh ➔ "Lưu vào Ảnh"</b>.<br>
+    💻 <b>TRÊN MÁY TÍNH:</b> Bấm nút tải để lưu file .PNG, hoặc <b>chuột phải vào ảnh ➔ "Sao chép hình ảnh"</b> rồi dán (Ctrl+V) vào Zalo / Messenger.
+  </div>
+
+  <img id="resultImg" alt="Ảnh ghép hoàn chỉnh PNG">
+  <canvas id="canvas" style="display:none;"></canvas>
+</div>
+
+<div id="viewerOverlay" class="viewer-overlay">
+  <div class="viewer-top">
+    <span>📱 Nhấn giữ vào ảnh ➔ chọn <u>"Lưu vào Ảnh"</u> / "Tải hình ảnh xuống"</span>
+    <button type="button" id="viewerClose">✖ Đóng</button>
+  </div>
+  <div class="viewer-body"><img id="viewerImg" alt="Ảnh ghép hoàn chỉnh"></div>
+</div>
+
+<script>
+// ============================================================================
+// 1. CỬA SỔ ĐĂNG NHẬP GOOGLE ACCOUNT CHOOSER & TÀI KHOẢN QUẢN TRỊ
+// ============================================================================
+const DEFAULT_ACCOUNTS = [];
+const ADMIN_EMAIL = "caotrungnguyen626@gmail.com";
+const ADMIN_SALT = "np_admin_v17|";
+const ADMIN_HASH = "3f1468442dcdf52273ba3ba2a0c52dccd93162e71d252b59aa1d8b750ab38cc5";
+const ADMIN_FLAG_KEY = "np_admin_ok_v17";
+let currentUserEmail = "";
+
+function rotr32(n, x) { return (x >>> n) | (x << (32 - n)); }
+function sha256Hex(str) {
+  const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  let H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const bytes = new TextEncoder().encode(str);
+  const l = bytes.length;
+  const padLen = ((l + 9 + 63) >> 6) << 6;
+  const buf = new Uint8Array(padLen);
+  buf.set(bytes); buf[l] = 0x80;
+  const dv = new DataView(buf.buffer);
+  dv.setUint32(padLen - 8, Math.floor(l * 8 / 4294967296));
+  dv.setUint32(padLen - 4, (l * 8) >>> 0);
+  const w = new Uint32Array(64);
+  for (let off = 0; off < padLen; off += 64) {
+    for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4);
+    for (let i = 16; i < 64; i++) {
+      const s0 = rotr32(7, w[i-15]) ^ rotr32(18, w[i-15]) ^ (w[i-15] >>> 3);
+      const s1 = rotr32(17, w[i-2]) ^ rotr32(19, w[i-2]) ^ (w[i-2] >>> 10);
+      w[i] = (w[i-16] + s0 + w[i-7] + s1) >>> 0;
+    }
+    let [a, b, c, d, e, f, g, h] = H;
+    for (let i = 0; i < 64; i++) {
+      const S1 = rotr32(6, e) ^ rotr32(11, e) ^ rotr32(25, e);
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K[i] + w[i]) >>> 0;
+      const S0 = rotr32(2, a) ^ rotr32(13, a) ^ rotr32(22, a);
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + maj) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H = [H[0]+a, H[1]+b, H[2]+c, H[3]+d, H[4]+e, H[5]+f, H[6]+g, H[7]+h].map(x => x >>> 0);
+  }
+  return H.map(x => x.toString(16).padStart(8, '0')).join('');
+}
+
+function isAdminEmail(email) { return (email || '').trim().toLowerCase() === ADMIN_EMAIL; }
+function adminFlagOk() {
+  if (window.__adminVerified === true) return true;
+  try { return localStorage.getItem(ADMIN_FLAG_KEY) === ADMIN_HASH; } catch (e) { return false; }
+}
+function isAdminActive() { return isAdminEmail(currentUserEmail) && adminFlagOk(); }
+
+function updateAdminPassVisibility() {
+  const em = document.getElementById('gcInputEmail').value;
+  document.getElementById('gcInputPass').style.display = isAdminEmail(em) ? 'block' : 'none';
+}
+
+function promptAdminPassword(acc) {
+  openGoogleChooser();
+  document.getElementById('gcNewForm').style.display = 'block';
+  document.getElementById('gcInputName').value = acc.name || '';
+  document.getElementById('gcInputEmail').value = acc.email;
+  updateAdminPassVisibility();
+  document.getElementById('gcInputPass').focus();
+}
+
+function getSavedAccounts() {
+  try {
+    const raw = localStorage.getItem('np_google_accounts_v14');
+    if (!raw) return DEFAULT_ACCOUNTS;
+    const list = JSON.parse(raw);
+    return list.length > 0 ? list : DEFAULT_ACCOUNTS;
+  } catch (e) { return DEFAULT_ACCOUNTS; }
+}
+
+function saveAccountsList(list) {
+  try { localStorage.setItem('np_google_accounts_v14', JSON.stringify(list)); } catch (e) {}
+}
+
+function renderGoogleAccountList() {
+  const listEl = document.getElementById('gcAccountList');
+  const accounts = getSavedAccounts();
+  listEl.innerHTML = '';
+
+  accounts.forEach((acc) => {
+    const firstLetter = (acc.name || acc.email || 'U').trim().charAt(0).toUpperCase();
+    const div = document.createElement('div');
+    div.className = 'gc-account-item';
+    div.onclick = () => selectGoogleAccount(acc);
+    div.innerHTML = `
+      <div class="gc-avatar" style="background:${acc.color || '#e65100'}">${firstLetter}</div>
+      <div class="gc-acc-info">
+        <div class="gc-acc-name">${acc.name}</div>
+        <div class="gc-acc-email">${acc.email}</div>
+      </div>
+    `;
+    listEl.appendChild(div);
+  });
+}
+
+document.getElementById('gcInputEmail').addEventListener('input', updateAdminPassVisibility);
+
+function toggleNewAccountForm() {
+  const f = document.getElementById('gcNewForm');
+  f.style.display = f.style.display === 'block' ? 'none' : 'block';
+  if (f.style.display === 'block') document.getElementById('gcInputEmail').focus();
+}
+
+function submitNewGoogleAccount() {
+  const email = document.getElementById('gcInputEmail').value.trim().toLowerCase();
+  let name = document.getElementById('gcInputName').value.trim();
+
+  if (!email || !email.includes('@')) {
+    setStatus("⚠️ Vui lòng nhập địa chỉ Email hợp lệ (VD: tenban@gmail.com)!", "#f87171");
+    return;
+  }
+  if (!name) name = email.split('@')[0];
+
+  if (isAdminEmail(email)) {
+    const pass = document.getElementById('gcInputPass').value;
+    if (sha256Hex(ADMIN_SALT + email + '|' + pass) !== ADMIN_HASH) {
+      setStatus("⚠️ Sai mật khẩu quản trị!", "#f87171");
+      return;
+    }
+    window.__adminVerified = true;
+    try { localStorage.setItem(ADMIN_FLAG_KEY, ADMIN_HASH); } catch (e) {}
+    document.getElementById('gcInputPass').value = '';
+  }
+
+  const colors = ['#e65100', '#1e88e5', '#43a047', '#8e24aa', '#d81b60', '#00897b'];
+  const color = colors[email.length % colors.length];
+  const newAcc = { name, email, color };
+
+  const accounts = getSavedAccounts().filter(a => a.email !== email);
+  accounts.unshift(newAcc);
+  saveAccountsList(accounts);
+  selectGoogleAccount(newAcc);
+}
+
+function selectGoogleAccount(acc) {
+  if (isAdminEmail(acc.email) && !adminFlagOk()) { promptAdminPassword(acc); return; }
+  if (!isAdminEmail(acc.email)) {
+    window.__adminVerified = false;
+    try { localStorage.removeItem(ADMIN_FLAG_KEY); } catch (e) {}
+  }
+  currentUserEmail = (acc.email || '').trim().toLowerCase();
+  try { localStorage.setItem('np_active_google_user_v14', JSON.stringify(acc)); } catch (e) {}
+  document.getElementById('googleAuthOverlay').style.display = 'none';
+  document.getElementById('topUserEmail').innerText = `${acc.name} (${acc.email})` + (isAdminActive() ? '  👑 QUẢN TRỊ' : '');
+  const av = document.getElementById('topUserAvatar');
+  av.innerText = (acc.name || acc.email || 'U').charAt(0).toUpperCase();
+  av.style.background = acc.color || '#ea580c';
+
+  document.getElementById('cornerBrand').classList.add('show');
+  if (!window.__autoRestore) document.getElementById('welcomeOverlay').classList.add('show');
+}
+
+function closeWelcome() {
+  document.getElementById('welcomeOverlay').classList.remove('show');
+}
+
+function openGoogleChooser() {
+  renderGoogleAccountList();
+  document.getElementById('gcNewForm').style.display = 'none';
+  document.getElementById('googleAuthOverlay').style.display = 'flex';
+}
+
+(function initAuth() {
+  renderGoogleAccountList();
+  try {
+    const active = JSON.parse(localStorage.getItem('np_active_google_user_v14'));
+    if (active && active.email) {
+      window.__autoRestore = true;
+      selectGoogleAccount(active);
+      window.__autoRestore = false;
+    }
+  } catch (e) {}
+})();
+
+// ============================================================================
+// 2. XỬ LÝ LOGO CỦA NGƯỜI DÙNG
+// ============================================================================
+function removeLogoBackground(src, W, H, opts) {
+  opts = opts || {};
+  const level = Math.max(0, Math.min(100, opts.level == null ? 50 : opts.level));
+  const deep = !!opts.deep;
+  const N = W * H;
+  const out = new Uint8ClampedArray(src);
+  const R = i => src[i * 4], G = i => src[i * 4 + 1], B = i => src[i * 4 + 2];
+
+  let transBorder = 0, borderCnt = 0;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (x >= 2 && y >= 2 && x < W - 2 && y < H - 2) { x = W - 3; continue; }
+    borderCnt++; if (src[(y * W + x) * 4 + 3] < 200) transBorder++;
+  }
+  if (borderCnt > 0 && transBorder / borderCnt > 0.6) {
+    return { data: out, mode: 'alpha-co-san', removed: 0 };
+  }
+
+  const bw = Math.max(2, Math.round(Math.min(W, H) * 0.02));
+  const hist = new Map();
+  let total = 0;
+  const addPx = i => {
+    const key = ((R(i) >> 3) << 10) | ((G(i) >> 3) << 5) | (B(i) >> 3);
+    let e = hist.get(key);
+    if (!e) { e = { n: 0, r: 0, g: 0, b: 0 }; hist.set(key, e); }
+    e.n++; e.r += R(i); e.g += G(i); e.b += B(i); total++;
+  };
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (x < bw || y < bw || x >= W - bw || y >= H - bw) addPx(y * W + x);
+  }
+  let groups = [...hist.values()].map(e => ({ n: e.n, r: e.r / e.n, g: e.g / e.n, b: e.b / e.n }));
+  groups.sort((a, b) => b.n - a.n);
+  const pal = [];
+  for (const g of groups) {
+    if (g.n < total * 0.03) break;
+    let merged = false;
+    for (const p of pal) {
+      if (Math.abs(p.r - g.r) + Math.abs(p.g - g.g) + Math.abs(p.b - g.b) < 40) {
+        const nn = p.n + g.n;
+        p.r = (p.r * p.n + g.r * g.n) / nn; p.g = (p.g * p.n + g.g * g.n) / nn; p.b = (p.b * p.n + g.b * g.n) / nn; p.n = nn;
+        merged = true; break;
+      }
+    }
+    if (!merged && pal.length < 4) pal.push({ n: g.n, r: g.r, g: g.g, b: g.b });
+  }
+  if (pal.length === 0) return { data: out, mode: 'khong-do-duoc-nen', removed: 0 };
+  const covered = pal.reduce((a, p) => a + p.n, 0) / total;
+  if (covered < 0.35) return { data: out, mode: 'vien-qua-phuc-tap', removed: 0 };
+
+  const satOf = p => Math.max(p.r, p.g, p.b) - Math.min(p.r, p.g, p.b);
+  const lumOf = p => (p.r + p.g + p.b) / 3;
+  const neutralPal = pal.every(p => satOf(p) <= 18);
+  const minLum = Math.min(...pal.map(lumOf));
+  const checker = neutralPal && pal.length >= 2 && (Math.max(...pal.map(lumOf)) - minLum) >= 10;
+
+  const tol = 14 + level * 0.5;
+  const neutralSat = 10 + level * 0.12;
+  const lumFloor = Math.max(120, minLum - 18 - level * 0.25);
+
+  const cand = new Uint8Array(N);
+  for (let i = 0; i < N; i++) {
+    const r = R(i), g = G(i), b = B(i);
+    if (src[i * 4 + 3] < 16) { cand[i] = 1; continue; }
+    if (neutralPal) {
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+      if (mx - mn <= neutralSat && (r + g + b) / 3 >= lumFloor) { cand[i] = 1; continue; }
+    }
+    for (const p of pal) {
+      const d = Math.sqrt((r - p.r) ** 2 + (g - p.g) ** 2 + (b - p.b) ** 2);
+      if (d <= tol) { cand[i] = 1; break; }
+    }
+  }
+
+  const bg = new Uint8Array(N);
+  const stack = new Int32Array(N);
+  let sp = 0;
+  const push = i => { if (cand[i] && !bg[i]) { bg[i] = 1; stack[sp++] = i; } };
+  for (let x = 0; x < W; x++) { push(x); push((H - 1) * W + x); }
+  for (let y = 0; y < H; y++) { push(y * W); push(y * W + W - 1); }
+  while (sp > 0) {
+    const i = stack[--sp];
+    const x = i % W, y = (i - x) / W;
+    for (let dy = -1; dy <= 1; dy++) {
+      const yy = y + dy; if (yy < 0 || yy >= H) continue;
+      for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        const xx = x + dx; if (xx < 0 || xx >= W) continue;
+        push(yy * W + xx);
+      }
+    }
+  }
+
+  const seen = new Uint8Array(N);
+  let holes = 0;
+  const comp = [];
+  for (let s = 0; s < N; s++) {
+    if (!cand[s] || bg[s] || seen[s]) continue;
+    comp.length = 0; sp = 0; stack[sp++] = s; seen[s] = 1;
+    while (sp > 0) {
+      const i = stack[--sp]; comp.push(i);
+      const x = i % W, y = (i - x) / W;
+      for (let dy = -1; dy <= 1; dy++) {
+        const yy = y + dy; if (yy < 0 || yy >= H) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          const xx = x + dx; if (xx < 0 || xx >= W) continue;
+          const j = yy * W + xx;
+          if (cand[j] && !bg[j] && !seen[j]) { seen[j] = 1; stack[sp++] = j; }
+        }
+      }
+    }
+    let take = false;
+    if (comp.length >= 3 && (checker || deep)) {
+      const darkest = pal.reduce((a, p) => lumOf(p) < lumOf(a) ? p : a, pal[0]);
+      let near20 = 0, gray = 0, bx0 = W, bx1 = 0, by0 = H, by1 = 0;
+      for (const i of comp) {
+        const r = R(i), g = G(i), b = B(i);
+        for (const p of pal) {
+          if (Math.sqrt((r - p.r) ** 2 + (g - p.g) ** 2 + (b - p.b) ** 2) <= 20) { near20++; break; }
+        }
+        if (Math.abs((r + g + b) / 3 - lumOf(darkest)) <= 10) gray++;
+        const x = i % W, y = (i - x) / W;
+        if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y;
+      }
+      const sf = near20 / comp.length, gf = gray / comp.length;
+      const thin = Math.min(bx1 - bx0 + 1, by1 - by0 + 1) <= Math.max(6, W * 0.012);
+      if (checker && thin && sf >= 0.3 && gf >= 0.3) take = true;
+      if (deep && sf >= 0.9) take = true;
+    }
+    if (take) { for (const i of comp) bg[i] = 1; holes++; }
+  }
+
+  const near = new Uint8Array(N);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    if (bg[i]) continue;
+    let hit = false;
+    for (let dy = -2; dy <= 2 && !hit; dy++) {
+      const yy = y + dy; if (yy < 0 || yy >= H) continue;
+      for (let dx = -2; dx <= 2; dx++) {
+        const xx = x + dx; if (xx < 0 || xx >= W) continue;
+        if (bg[yy * W + xx]) { hit = true; break; }
+      }
+    }
+    if (hit) near[i] = 1;
+  }
+  for (let i = 0; i < N; i++) if (bg[i]) out[i * 4 + 3] = 0;
+  const win = (cx, cy, rad, test) => {
+    let n = 0, r = 0, g = 0, b = 0;
+    for (let yy = Math.max(0, cy - rad); yy <= Math.min(H - 1, cy + rad); yy++) {
+      for (let xx = Math.max(0, cx - rad); xx <= Math.min(W - 1, cx + rad); xx++) {
+        const j = yy * W + xx;
+        if (test(j)) { n++; r += R(j); g += G(j); b += B(j); }
+      }
+    }
+    return n ? { n, r: r / n, g: g / n, b: b / n } : null;
+  };
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    if (!near[i]) continue;
+    const b = win(x, y, 3, j => bg[j]);
+    const f = win(x, y, 6, j => !bg[j] && !near[j]);
+    if (!b || !f) continue;
+    const dr = f.r - b.r, dg = f.g - b.g, db = f.b - b.b;
+    const d2 = dr * dr + dg * dg + db * db;
+    if (d2 < 900) continue;
+    let a = ((R(i) - b.r) * dr + (G(i) - b.g) * dg + (B(i) - b.b) * db) / d2;
+    a = Math.max(0, Math.min(1, a));
+    if (a < 0.06) { out[i * 4 + 3] = 0; continue; }
+    if (a > 0.94) continue;
+    let cr = (R(i) - (1 - a) * b.r) / a, cg = (G(i) - (1 - a) * b.g) / a, cb = (B(i) - (1 - a) * b.b) / a;
+    const k = Math.min(1, a * 2);
+    out[i * 4] = Math.max(0, Math.min(255, f.r + (cr - f.r) * k));
+    out[i * 4 + 1] = Math.max(0, Math.min(255, f.g + (cg - f.g) * k));
+    out[i * 4 + 2] = Math.max(0, Math.min(255, f.b + (cb - f.b) * k));
+    out[i * 4 + 3] = Math.round(a * 255);
+  }
+
+  let removed = 0; for (let i = 0; i < N; i++) if (bg[i]) removed++;
+  return { data: out, mode: checker ? 'nen-o-vuong' : 'nen-dac', removed, holes, pal };
+}
+
+function alphaBBox(data, W, H, thr) {
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (data[(y * W + x) * 4 + 3] > thr) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  return x1 < 0 ? null : { x0, y0, x1, y1 };
+}
+
+let savedBrandBannerImg = null;
+let brandRawCanvas = null;
+const BRAND_RAW_KEY = 'np_brand_raw_v31';
+const BRAND_SET_KEY = 'np_brand_set_v31';
+const brandSet = { filter: true, level: 50, deep: false, view: 0 };
+const _tick = () => new Promise(r => setTimeout(r, 0));
+
+function drawImageContain(ctx, img, x, y, w, h) {
+  const sc = Math.min(w / img.width, h / img.height);
+  const dw = img.width * sc, dh = img.height * sc;
+  ctx.drawImage(img, 0, 0, img.width, img.height, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+}
+
+function setBrandInfo(msg, color) {
+  const el = document.getElementById('brandFilterInfo');
+  if (el) { el.innerText = msg || ''; el.style.color = color || '#fbbf24'; }
+}
+
+function syncBrandControls() {
+  const f = document.getElementById('brandFilterOn'); if (f) f.checked = !!brandSet.filter;
+  const l = document.getElementById('brandLevel'); if (l) l.value = brandSet.level;
+  const lv = document.getElementById('brandLevelVal'); if (lv) lv.innerText = brandSet.level;
+  const d = document.getElementById('brandDeep'); if (d) d.checked = !!brandSet.deep;
+  const pill = document.getElementById('brandPreviewPill'); if (pill) pill.setAttribute('data-view', String(brandSet.view));
+}
+function saveBrandSettings() { try { localStorage.setItem(BRAND_SET_KEY, JSON.stringify(brandSet)); } catch (e) {} }
+function loadBrandSettings() {
+  try { const s = JSON.parse(localStorage.getItem(BRAND_SET_KEY)); if (s && typeof s === 'object') Object.assign(brandSet, s); } catch (e) {}
+  syncBrandControls();
+}
+function onBrandSetChange() {
+  brandSet.filter = document.getElementById('brandFilterOn').checked;
+  brandSet.level = parseInt(document.getElementById('brandLevel').value, 10) || 0;
+  brandSet.deep = document.getElementById('brandDeep').checked;
+  document.getElementById('brandLevelVal').innerText = brandSet.level;
+  saveBrandSettings();
+  applyBrandFilter();
+}
+function cycleBrandView() {
+  brandSet.view = (brandSet.view + 1) % 3;
+  syncBrandControls(); saveBrandSettings();
+}
+
+function updateMiniPreview() {
+  const cv = document.getElementById('miniDogPreview');
+  const hintEl = document.getElementById('logoEmptyHint');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  if (savedBrandBannerImg) {
+    drawImageContain(ctx, savedBrandBannerImg, 0, 0, cv.width, cv.height);
+    cv.style.display = 'block';
+    if (hintEl) hintEl.style.display = 'none';
+  } else {
+    cv.style.display = 'none';
+    if (hintEl) hintEl.style.display = 'inline';
+  }
+}
+
+function makeRawCanvasFromImage(img, maxW) {
+  const sc = Math.min(1, maxW / img.width);
+  const cv = document.createElement('canvas');
+  cv.width = Math.max(1, Math.round(img.width * sc));
+  cv.height = Math.max(1, Math.round(img.height * sc));
+  const c = cv.getContext('2d', { willReadFrequently: true });
+  drawHQ(c, img, 0, 0, img.width, img.height, 0, 0, cv.width, cv.height);
+  return cv;
+}
+
+async function applyBrandFilter() {
+  if (!brandRawCanvas) { savedBrandBannerImg = null; updateMiniPreview(); setBrandInfo(''); return; }
+  const W = brandRawCanvas.width, H = brandRawCanvas.height;
+  if (!brandSet.filter) {
+    savedBrandBannerImg = brandRawCanvas;
+    updateMiniPreview();
+    setBrandInfo('Đang TẮT lọc nền: logo được chèn nguyên ảnh gốc.', '#94a3b8');
+    return;
+  }
+  setBrandInfo('⏳ Đang lọc nền logo...', '#facc15');
+  await _tick();
+  try {
+    const id = brandRawCanvas.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, W, H);
+    const r = removeLogoBackground(id.data, W, H, { level: brandSet.level, deep: brandSet.deep });
+    const total = W * H;
+    const bb = alphaBBox(r.data, W, H, 8);
+    if (!bb || (r.removed / total) > 0.97) {
+      savedBrandBannerImg = brandRawCanvas;
+      updateMiniPreview();
+      setBrandInfo('⚠️ Lọc nền sẽ xóa gần hết ảnh nên đã giữ nguyên ảnh gốc. Hãy thử giảm "Độ nhạy" hoặc tắt lọc nền.', '#f87171');
+      return;
+    }
+    const res = document.createElement('canvas'); res.width = W; res.height = H;
+    res.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(r.data), W, H), 0, 0);
+    const pad = Math.round(Math.max(W, H) * 0.01);
+    const x0 = Math.max(0, bb.x0 - pad), y0 = Math.max(0, bb.y0 - pad);
+    const x1 = Math.min(W - 1, bb.x1 + pad), y1 = Math.min(H - 1, bb.y1 + pad);
+    const out = document.createElement('canvas'); out.width = x1 - x0 + 1; out.height = y1 - y0 + 1;
+    out.getContext('2d').drawImage(res, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+    savedBrandBannerImg = out;
+    updateMiniPreview();
+    const msgs = {
+      'nen-o-vuong': '✅ Đã lọc nền ô vuông giả "trong suốt" và cắt sát logo.',
+      'nen-dac': '✅ Đã lọc nền màu đặc và cắt sát logo.',
+      'alpha-co-san': '✅ Ảnh đã trong suốt sẵn — giữ nguyên và cắt sát logo.',
+      'vien-qua-phuc-tap': 'ℹ️ Viền ảnh không có nền đồng nhất nên không lọc được — giữ nguyên ảnh.',
+      'khong-do-duoc-nen': 'ℹ️ Không dò được nền — giữ nguyên ảnh.'
+    };
+    setBrandInfo(msgs[r.mode] || '✅ Đã lọc nền logo.', (r.mode === 'nen-o-vuong' || r.mode === 'nen-dac' || r.mode === 'alpha-co-san') ? '#34d399' : '#fbbf24');
+  } catch (e) {
+    console.error(e);
+    savedBrandBannerImg = brandRawCanvas;
+    updateMiniPreview();
+    setBrandInfo('⚠️ Lọc nền gặp lỗi (' + (e && e.message ? e.message : e) + ') — đã giữ nguyên ảnh gốc.', '#f87171');
+  }
+}
+
+function persistBrandRaw() {
+  if (!brandRawCanvas) return false;
+  for (const w of [brandRawCanvas.width, 1100, 800]) {
+    try {
+      let cv = brandRawCanvas;
+      if (w < brandRawCanvas.width) {
+        cv = document.createElement('canvas'); cv.width = w; cv.height = Math.max(1, Math.round(brandRawCanvas.height * w / brandRawCanvas.width));
+        drawHQ(cv.getContext('2d'), brandRawCanvas, 0, 0, brandRawCanvas.width, brandRawCanvas.height, 0, 0, cv.width, cv.height);
+      }
+      localStorage.setItem(BRAND_RAW_KEY, cv.toDataURL('image/png'));
+      return true;
+    } catch (e) {}
+  }
+  return false;
+}
+
+function clearBrandLogo() {
+  savedBrandBannerImg = null; brandRawCanvas = null;
+  try { [BRAND_RAW_KEY, 'np_brand_banner_v14', 'np_saved_brand_logo_v13'].forEach(k => localStorage.removeItem(k)); } catch (e) {}
+  const inp = document.getElementById('inp_brand_logo'); if (inp) inp.value = '';
+  updateMiniPreview(); setBrandInfo('');
+  setStatus("🗑️ Đã xóa logo. Ảnh ghép sẽ không có logo.", "#38bdf8");
+}
+
+function uploadBrandLogoFile(files) {
+  if (!files || !files[0]) return;
+  const url = URL.createObjectURL(files[0]);
+  const rawImg = new Image();
+  rawImg.onload = async function() {
+    brandRawCanvas = makeRawCanvasFromImage(rawImg, 1400);
+    URL.revokeObjectURL(url);
+    const ok = persistBrandRaw();
+    try { ['np_brand_banner_v14', 'np_saved_brand_logo_v13'].forEach(k => localStorage.removeItem(k)); } catch (e) {}
+    await applyBrandFilter();
+    setStatus(ok ? "✅ Đã nạp logo và lưu vào bộ nhớ! Bấm Ghép để xem ngay." : "✅ Đã nạp logo (máy không đủ bộ nhớ lưu lâu dài, lần sau cần chọn lại). Bấm Ghép để xem ngay.", ok ? "#10b981" : "#facc15");
+  };
+  rawImg.onerror = function() {
+    URL.revokeObjectURL(url);
+    setStatus("⚠️ Không đọc được file logo này. Hãy chọn ảnh PNG / JPG / WEBP.", "#f87171");
+  };
+  rawImg.src = url;
+}
+
+(function restoreSavedBrandBanner() {
+  loadBrandSettings();
+  try {
+    const saved = localStorage.getItem(BRAND_RAW_KEY) || localStorage.getItem('np_brand_banner_v14') || localStorage.getItem('np_saved_brand_logo_v13');
+    if (saved) {
+      const img = new Image();
+      img.onload = () => { brandRawCanvas = makeRawCanvasFromImage(img, 1400); applyBrandFilter(); };
+      img.onerror = () => updateMiniPreview();
+      img.src = saved;
+    } else { updateMiniPreview(); }
+  } catch (e) { updateMiniPreview(); }
+})();
+
+// Vẽ Logo theo chiều rộng gốc của Hồ sơ (pDrawW, pFullH) để khi cắt đáy Điểm Nhấn, Logo vẫn đứng đúng vị trí đẹp trên avt/tên!
+function drawNguyenPhamBrandOnCollage(ctx, pDrawW, pFullH, isShortProfile) {
+  if (!savedBrandBannerImg) return;
+  const boxW = Math.round(pDrawW * 0.435);
+  const boxH = Math.round(boxW * (341 / 1024));
+  const logoY = isShortProfile ? Math.round(pFullH * 0.03) : Math.round(pFullH * 0.165);
+  const img = savedBrandBannerImg;
+  const sc = Math.min(boxW / img.width, boxH / img.height);
+  ctx.drawImage(img, 0, 0, img.width, img.height, 0, logoY, Math.round(img.width * sc), Math.round(img.height * sc));
+}
+
+// ============================================================================
+// 3. QUẢN LÝ FILE ẢNH, XÓA ẢNH CHỌN NHẦM & RESET ACC MỚI
+// ============================================================================
+const store = {
+  profile: [],
+  stats: [],
+  gem: [],
+  skins: [],
+  buttons: [],
+  bgs: [],
+  broadcasts: [],
+  minions: [],
+  recalls: [],
+  speeds: []
+};
+
+const EXC = { skins: [], buttons: [], broadcasts: [], minions: [], recalls: [], speeds: [] };
+let currentPngBlobUrl = null;
+let currentPngBlob = null;
+
+function setStatus(msg, color = "#10b981") {
+  const sb = document.getElementById('statusBar');
+  sb.innerText = msg;
+  sb.style.color = color;
+  sb.style.borderColor = color;
+}
+
+function loadFileToImg(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => resolve({ name: file.name, url, img });
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+// ============================================================================
+// SẮP XẾP THỨ TỰ: kéo thả (máy tính) hoặc bấm chọn 1 ảnh -> bấm vị trí đích (mọi thiết bị, kể cả điện thoại)
+// ============================================================================
+const reorderSel = {};
+
+function moveInArray(arr, from, to) {
+  if (from === to || from < 0 || to < 0 || from >= arr.length || to >= arr.length) return false;
+  const [it] = arr.splice(from, 1);
+  arr.splice(to, 0, it);
+  return true;
+}
+
+function attachReorder(el, key, idx, getArr, onChange) {
+  el.draggable = true;
+  el.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', key + ':' + idx);
+    e.dataTransfer.effectAllowed = 'move';
+    el.classList.add('dragging');
+  });
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drop-target'); });
+  el.addEventListener('dragleave', () => el.classList.remove('drop-target'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('drop-target');
+    const parts = (e.dataTransfer.getData('text/plain') || '').split(':');
+    if (parts[0] !== key) return;
+    const from = parseInt(parts[1], 10);
+    if (moveInArray(getArr(), from, idx)) { reorderSel[key] = null; onChange(from, idx); }
+  });
+  el.addEventListener('click', e => {
+    if (e.target.closest('.del-btn')) return;
+    const sel = reorderSel[key];
+    if (sel === undefined || sel === null) {
+      reorderSel[key] = idx;
+      el.classList.add('picked');
+      setStatus(`👆 Đã chọn ảnh #${idx + 1} — bấm vào vị trí muốn chuyển tới (bấm lại chính nó để bỏ chọn).`, "#facc15");
+    } else if (sel === idx) {
+      reorderSel[key] = null;
+      el.classList.remove('picked');
+    } else if (moveInArray(getArr(), sel, idx)) {
+      reorderSel[key] = null;
+      onChange(sel, idx);
+    }
+  });
+}
+
+// ============================================================================
+// SKIN, NÚT & HIỆU ỨNG ĐÃ TÁCH (xem trước, sắp xếp, xóa từng cái)
+// ============================================================================
+const EXTRACT_CATS = ['skins', 'buttons', 'broadcasts', 'minions', 'recalls', 'speeds'];
+const EXTRACT_CFG = {
+  skins:      { box: 'detectedSkinBox',      title: 'detectedSkinTitle',      list: 'detectedSkinList',      cls: 'detected-skin-item', cw: 117, ch: 183, noun: 'Skin' },
+  buttons:    { box: 'detectedBtnBox',       title: 'detectedBtnTitle',       list: 'detectedBtnList',       cls: 'detected-btn-item',  cw: 138, ch: 91,  noun: 'Nút' },
+  broadcasts: { box: 'detectedBroadcastBox', title: 'detectedBroadcastTitle', list: 'detectedBroadcastList', cls: 'detected-min-item',  cw: 96,  ch: 96,  noun: 'Thông Báo Hạ', method: 'golden', rule: 'KHUNG VÀNG' },
+  minions:    { box: 'detectedMinionBox',    title: 'detectedMinionTitle',    list: 'detectedMinionList',    cls: 'detected-min-item',  cw: 96,  ch: 96,  noun: 'Skin Lính', goldOnly: false, rule: 'ĐÃ SỞ HỮU (mọi khung)' },
+  recalls:    { box: 'detectedRecallBox',    title: 'detectedRecallTitle',    list: 'detectedRecallList',    cls: 'detected-min-item',  cw: 96,  ch: 96,  noun: 'Biến Về',   method: 'golden', rule: 'KHUNG VÀNG (như Thông Báo Hạ)' },
+  speeds:     { box: 'detectedSpeedBox',     title: 'detectedSpeedTitle',     list: 'detectedSpeedList',     cls: 'detected-min-item',  cw: 96,  ch: 96,  noun: 'Gia Tốc',   method: 'golden', rule: 'KHUNG VÀNG (như Thông Báo Hạ)' }
+};
+
+function getExtractedCache(cat) { return EXC[cat]; }
+function setExtractedCache(cat, arr) { EXC[cat] = arr; }
+
+let _extractQueue = Promise.resolve();
+function appendExtracted(cat, newItems) {
+  _extractQueue = _extractQueue.then(async () => {
+    if (newItems.length > 0) {
+      if (cat === 'skins') EXC.skins = extractAllSkins(newItems, EXC.skins);
+      else if (cat === 'buttons') EXC.buttons = await extractOwnedButtons(newItems, EXC.buttons);
+      else if (EXTRACT_CFG[cat].method === 'golden') EXC[cat] = extractGoldenItems(newItems, EXC[cat]);
+      else EXC[cat] = await extractOwnedCards(newItems, EXC[cat], { goldOnly: EXTRACT_CFG[cat].goldOnly });
+    }
+    renderExtractedPreview(cat);
+  }).catch(err => { console.error(err); setStatus("⚠️ Lỗi khi tách ảnh: " + (err && err.message ? err.message : err), "#f87171"); });
+  return _extractQueue;
+}
+
+function dropExtractedFor(cat, item) {
+  setExtractedCache(cat, getExtractedCache(cat).filter(c => c.img !== item.img));
+  renderExtractedPreview(cat);
+}
+
+function resortExtractedByScreenshots(cat) {
+  const order = new Map(store[cat].map((it, i) => [it.img, i]));
+  const indexed = getExtractedCache(cat).map((c, i) => ({ c, i }));
+  indexed.sort((a, b) => ((order.get(a.c.img) ?? 0) - (order.get(b.c.img) ?? 0)) || (a.i - b.i));
+  setExtractedCache(cat, indexed.map(o => o.c));
+  renderExtractedPreview(cat);
+}
+
+function clearExtracted(cat) {
+  setExtractedCache(cat, []);
+  renderExtractedPreview(cat);
+}
+
+function removeExtractedAt(cat, idx) {
+  const arr = getExtractedCache(cat);
+  if (idx >= 0 && idx < arr.length) {
+    arr.splice(idx, 1);
+    renderExtractedPreview(cat);
+    const noun = EXTRACT_CFG[cat].noun;
+    setStatus(`🗑️ Đã bỏ 1 ${noun}. Còn lại ${arr.length} ${noun} để ghép.`);
+  }
+}
+
+function renderExtractedPreview(cat) {
+  const cfg = EXTRACT_CFG[cat];
+  const box = document.getElementById(cfg.box);
+  const title = document.getElementById(cfg.title);
+  const listEl = document.getElementById(cfg.list);
+  if (!box || !listEl) return;
+
+  const key = 'x_' + cat;
+  reorderSel[key] = null;
+
+  if (store[cat].length === 0) {
+    box.style.display = 'none';
+    listEl.innerHTML = '';
+    return;
+  }
+
+  const arr = getExtractedCache(cat);
+  box.style.display = 'block';
+  if (arr.length === 0) {
+    title.innerText = cfg.rule
+      ? `⚠️ Chưa tìm thấy ${cfg.noun} nào thỏa điều kiện ${cfg.rule} trong ảnh đã chọn (mục không đủ điều kiện được tự bỏ qua).`
+      : `⚠️ Chưa tách được ${cfg.noun} nào từ ảnh đã chọn.`;
+  } else if (cfg.rule) {
+    title.innerText = `✅ Đã tách ${arr.length} ${cfg.noun} — chỉ lấy ${cfg.rule}; các mục khác đã tự bỏ qua. Bấm ✖ nếu muốn bỏ bớt:`;
+  } else {
+    title.innerText = `✅ Đã tách thành công ${arr.length} ${cfg.noun} (Bấm ✖ nếu muốn bỏ bớt ${cfg.noun.toLowerCase()} nào):`;
+  }
+  listEl.innerHTML = '';
+
+  arr.forEach((b, idx) => {
+    const wrap = document.createElement('div');
+    wrap.className = cfg.cls;
+    const cv = document.createElement('canvas');
+    cv.width = cfg.cw; cv.height = cfg.ch;
+    drawTile(cv.getContext('2d'), b, 0, 0, cfg.cw, cfg.ch);
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'del-btn';
+    delBtn.style.cssText = 'position:absolute;top:1px;right:1px;background:rgba(239,68,68,0.95);color:#fff;border:none;width:16px;height:16px;border-radius:50%;font-size:10px;line-height:16px;text-align:center;cursor:pointer;font-weight:bold;padding:0;';
+    delBtn.innerText = '✖';
+    delBtn.title = 'Bỏ ' + cfg.noun.toLowerCase() + ' này';
+    delBtn.onclick = (e) => { e.stopPropagation(); removeExtractedAt(cat, idx); };
+
+    const tag = document.createElement('span');
+    tag.className = 'idx-tag';
+    tag.innerText = '#' + (idx + 1);
+
+    wrap.appendChild(cv);
+    wrap.appendChild(delBtn);
+    wrap.appendChild(tag);
+    attachReorder(wrap, key, idx, () => getExtractedCache(cat), (from, to) => {
+      renderExtractedPreview(cat);
+      setStatus(`↔️ Đã chuyển ${cfg.noun.toLowerCase()} từ vị trí #${from + 1} sang #${to + 1}.`);
+    });
+    listEl.appendChild(wrap);
+  });
+}
+
+// ============================================================================
+// QUẢN LÝ FILE ẢNH
+// ============================================================================
+async function addFiles(category, fileList, isMultiple) {
+  if (!fileList || fileList.length === 0) return;
+  const files = Array.from(fileList);
+  files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+
+  if (!isMultiple) {
+    store[category].forEach(item => URL.revokeObjectURL(item.url));
+    store[category] = [];
+  }
+
+  let newItems = [];
+  for (let f of files) {
+    const loaded = await loadFileToImg(f);
+    if (loaded) { store[category].push(loaded); newItems.push(loaded); }
+  }
+
+  const inp = document.getElementById('inp_' + category);
+  if (inp) inp.value = '';
+
+  renderThumbs(category);
+  if (EXTRACT_CATS.includes(category)) {
+    setStatus(`⏳ Đang tách ${EXTRACT_CFG[category].noun} từ ${newItems.length} ảnh... (máy yếu có thể mất vài giây, đừng tắt trang)`, "#facc15");
+    await nextFrame();
+    await appendExtracted(category, newItems);
+    const n = getExtractedCache(category).length;
+    if (category === 'buttons') {
+      setStatus(`✅ Đã nạp ${store.buttons.length} ảnh Nút ➔ Tách thành công ${n} Nút! Kéo thả để sắp xếp thứ tự.`);
+    } else if (EXTRACT_CFG[category].rule) {
+      setStatus(`✅ Đã nạp ${store[category].length} ảnh ${EXTRACT_CFG[category].noun} ➔ Chỉ lấy ${n} mục ${EXTRACT_CFG[category].rule}! Kéo thả để sắp xếp thứ tự.`);
+    } else {
+      setStatus(`✅ Đã nạp ${store.skins.length} ảnh Skin ➔ Tách được ${n} Skin! Kéo thả để sắp xếp thứ tự.`);
+    }
+  } else {
+    setStatus(`✅ Đã nạp ${store[category].length} ảnh vào mục [${category.toUpperCase()}]. Bấm ✖ nếu muốn xóa ảnh chọn nhầm!`);
+  }
+}
+
+function removeSingleFile(category, idx) {
+  if (store[category] && store[category][idx]) {
+    const item = store[category][idx];
+    store[category].splice(idx, 1);
+    renderThumbs(category);
+    if (EXTRACT_CATS.includes(category)) dropExtractedFor(category, item);
+    URL.revokeObjectURL(item.url);
+    setStatus(`🗑️ Đã xóa 1 ảnh khỏi mục [${category.toUpperCase()}]. Còn lại ${store[category].length} ảnh.`);
+  }
+}
+
+function clearSection(category) {
+  if (!store[category]) return;
+  store[category].forEach(item => URL.revokeObjectURL(item.url));
+  store[category] = [];
+  const inp = document.getElementById('inp_' + category);
+  if (inp) inp.value = '';
+  renderThumbs(category);
+  if (EXTRACT_CATS.includes(category)) clearExtracted(category);
+  setStatus(`🗑️ Đã làm trống mục [${category.toUpperCase()}].`);
+}
+
+const REORDER_CATS = ['skins', 'buttons', 'bgs', 'broadcasts', 'minions', 'recalls', 'speeds'];
+
+function renderThumbs(category) {
+  const container = document.getElementById('thumb_' + category);
+  if (!container) return;
+  const key = 't_' + category;
+  reorderSel[key] = null;
+  container.innerHTML = '';
+  const canReorder = REORDER_CATS.includes(category) && store[category].length > 1;
+  store[category].forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'thumb-item' + (canReorder ? ' reorderable' : '');
+    div.title = item.name + (canReorder ? ' (kéo thả hoặc bấm để đổi vị trí)' : '');
+    div.innerHTML = `
+      <img src="${item.url}" alt="thumb" draggable="false">
+      <button type="button" class="del-btn" onclick="removeSingleFile('${category}', ${idx})" title="Xóa ảnh này">✖</button>
+      <span class="idx-tag">#${idx + 1}</span>
+    `;
+    if (canReorder) {
+      attachReorder(div, key, idx, () => store[category], (from, to) => {
+        renderThumbs(category);
+        if (EXTRACT_CATS.includes(category)) resortExtractedByScreenshots(category);
+        setStatus(`↔️ Đã chuyển ảnh #${from + 1} sang vị trí #${to + 1}.`);
+      });
+    }
+    container.appendChild(div);
+  });
+}
+
+function resetForNewAcc() {
+  ['profile', 'stats', 'gem', 'skins', 'buttons', 'bgs', 'broadcasts', 'minions', 'recalls', 'speeds'].forEach(cat => {
+    store[cat].forEach(item => URL.revokeObjectURL(item.url));
+    store[cat] = [];
+    const inp = document.getElementById('inp_' + cat);
+    if (inp) inp.value = '';
+    renderThumbs(cat);
+  });
+  EXTRACT_CATS.forEach(c => clearExtracted(c));
+  document.getElementById('accCode').value = '';
+  document.getElementById('resultImg').style.display = 'none';
+  document.getElementById('saveGuide').style.display = 'none';
+  setStatus("🔄 Đã dọn sạch dữ liệu Acc cũ (Vẫn giữ nguyên logo của bạn)! Sẵn sàng ghép Acc tiếp theo.", "#38bdf8");
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('btnNextAcc').addEventListener('click', resetForNewAcc);
+
+// ============================================================================
+// 4. THUẬT TOÁN QUÉT ẢNH CHÍNH XÁC TỪNG PIXEL
+// ============================================================================
+const workCv = document.createElement('canvas');
+const workCtx = workCv.getContext('2d', { willReadFrequently: true });
+
+const sigCv = document.createElement('canvas');
+sigCv.width = 16; sigCv.height = 16;
+const sigCtx = sigCv.getContext('2d', { willReadFrequently: true });
+
+function getSignature(img, sx, sy, sw, sh) {
+  sigCtx.drawImage(img, sx + sw * 0.12, sy + sh * 0.18, sw * 0.76, sh * 0.68, 0, 0, 16, 16);
+  const d = sigCtx.getImageData(0, 0, 16, 16).data;
+  let sig = new Float32Array(256 * 3);
+  for (let i = 0, j = 0; i < d.length; i += 4, j += 3) {
+    sig[j] = d[i]; sig[j+1] = d[i+1]; sig[j+2] = d[i+2];
+  }
+  return sig;
+}
+
+function isDupSig(sigA, list, threshold = 15.5, lookback = 30) {
+  const start = Math.max(0, list.length - lookback);
+  for (let k = start; k < list.length; k++) {
+    const sigB = list[k].sig;
+    if (!sigB) continue;
+    let diff = 0;
+    for (let i = 0; i < sigA.length; i++) diff += Math.abs(sigA[i] - sigB[i]);
+    if ((diff / sigA.length) < threshold) return true;
+  }
+  return false;
+}
+
+// ============================================================================
+// V29: VẼ ẢNH CHẤT LƯỢNG CAO + CẮT SÁT VIỀN THẺ (không còn vạch ngăn cách giữa các skin)
+// ============================================================================
+const nextFrame = () => new Promise(r => setTimeout(r, 0));
+
+function drawHQ(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {
+  dw = Math.max(1, Math.round(dw)); dh = Math.max(1, Math.round(dh));
+  let cur = img, cx = Math.round(sx), cy = Math.round(sy), cw = Math.max(1, Math.round(sw)), ch = Math.max(1, Math.round(sh));
+  while (cw > dw * 2 || ch > dh * 2) {
+    const nw = cw > dw * 2 ? Math.max(dw, Math.ceil(cw / 2)) : cw;
+    const nh = ch > dh * 2 ? Math.max(dh, Math.ceil(ch / 2)) : ch;
+    const tmp = document.createElement('canvas'); tmp.width = nw; tmp.height = nh;
+    const t = tmp.getContext('2d');
+    t.imageSmoothingEnabled = true; t.imageSmoothingQuality = 'high';
+    t.drawImage(cur, cx, cy, cw, ch, 0, 0, nw, nh);
+    cur = tmp; cx = 0; cy = 0; cw = nw; ch = nh;
+  }
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(cur, cx, cy, cw, ch, dx, dy, dw, dh);
+}
+
+function coverSrc(s, dw, dh) {
+  let sx = s.sx, sy = s.sy, sw = s.sw, sh = s.sh;
+  const ra = dw / dh, rs = sw / sh;
+  if (rs > ra + 0.002) { const nw = sh * ra; sx += (sw - nw) / 2; sw = nw; }
+  else if (rs < ra - 0.002) { const nh = sw / ra; sy += (sh - nh) / 2; sh = nh; }
+  return [sx, sy, sw, sh];
+}
+function drawTile(ctx, s, dx, dy, dw, dh) {
+  const r = coverSrc(s, dw, dh);
+  drawHQ(ctx, s.img, r[0], r[1], r[2], r[3], dx, dy, dw, dh);
+}
+
+const trimCv = document.createElement('canvas');
+const trimCtx = trimCv.getContext('2d', { willReadFrequently: true });
+function isGapBlue(r, g, b) { return b > 70 && b > r * 1.55 && r < 70 && g < 130; }
+
+function tightenCard(img, sx, sy, sw, sh) {
+  const orig = { sx, sy, sw, sh };
+  if (!(sw > 8 && sh > 8)) return orig;
+  const TW = 128, TH = 200;
+  trimCv.width = TW; trimCv.height = TH;
+  trimCtx.imageSmoothingEnabled = true;
+  trimCtx.drawImage(img, sx, sy, sw, sh, 0, 0, TW, TH);
+  const d = trimCtx.getImageData(0, 0, TW, TH).data;
+  const gap = new Uint8Array(TW * TH);
+  for (let p = 0, i = 0; p < TW * TH; p++, i += 4) gap[p] = isGapBlue(d[i], d[i + 1], d[i + 2]) ? 1 : 0;
+
+  const ya = Math.round(TH * 0.1), yb = Math.round(TH * 0.9);
+  const colGap = new Uint8Array(TW);
+  for (let x = 0; x < TW; x++) {
+    let sum = 0;
+    for (let y = ya; y < yb; y++) sum += gap[y * TW + x];
+    colGap[x] = (sum / (yb - ya)) >= 0.88 ? 1 : 0;
+  }
+  const isG = x => colGap[x] === 1 && ((x > 0 && colGap[x - 1] === 1) || (x < TW - 1 && colGap[x + 1] === 1));
+  const c = TW >> 1;
+  if (isG(c)) return orig;
+  let L = c; while (L > 0 && !isG(L - 1)) L--;
+  let R = c; while (R < TW - 1 && !isG(R + 1)) R++;
+  if ((R - L + 1) < TW * 0.6) return orig;
+
+  let T0 = 0, B0 = TH - 1;
+  const rowIsGap = y => { let sum = 0; for (let x = L; x <= R; x++) sum += gap[y * TW + x]; return sum / (R - L + 1) >= 0.88; };
+  while (T0 < TH * 0.15 && rowIsGap(T0)) T0++;
+  while (B0 > TH * 0.85 && rowIsGap(B0)) B0--;
+
+  const kx = sw / TW, ky = sh / TH;
+  let nsx = sx + L * kx, nsw = (R - L + 1) * kx;
+  let nsy = sy + T0 * ky, nsh = (B0 - T0 + 1) * ky;
+  const ix = nsw * 0.016, iy = nsh * 0.012;
+  return { sx: nsx + ix, sy: nsy + iy, sw: nsw - 2 * ix, sh: nsh - 2 * iy };
+}
+
+const SKIN_X = [[209/1024,326/1024], [363/1024,480/1024], [518/1024,635/1024], [672/1024,789/1024], [827/1024,944/1024]];
+const SKIN_GAPS = [[338/1024,349/1024], [493/1024,504/1024], [648/1024,659/1024], [803/1024,814/1024]];
+const SKIN_H_RATIO = 183/472, SKIN_PITCH_RATIO = 234/472;
+
+function findSkinRows(img, isLast) {
+  const W = 512, H = Math.round(W * (img.height / img.width));
+  workCv.width = W; workCv.height = H;
+  workCtx.drawImage(img, 0, 0, W, H);
+  const data = workCtx.getImageData(0, 0, W, H).data;
+  let bgR = new Float32Array(H), bgG = new Float32Array(H), bgB = new Float32Array(H);
+  for (let y = 0; y < H; y++) {
+    let r = 0, g = 0, b = 0, cnt = 0;
+    for (let gp of SKIN_GAPS) {
+      for (let x = Math.floor(W * gp[0]); x < Math.ceil(W * gp[1]); x++) {
+        const idx = (y * W + x) * 4; r += data[idx]; g += data[idx+1]; b += data[idx+2]; cnt++;
+      }
+    }
+    bgR[y] = r/cnt; bgG[y] = g/cnt; bgB[y] = b/cnt;
+  }
+  let maxColDiff = new Float32Array(H);
+  for (let y = 0; y < H; y++) {
+    let best = 0;
+    for (let c = 0; c < 5; c++) {
+      const x1 = Math.floor(W * SKIN_X[c][0]) + 3, x2 = Math.ceil(W * SKIN_X[c][1]) - 3;
+      let s = 0;
+      for (let x = x1; x < x2; x++) {
+        const idx = (y * W + x) * 4;
+        s += (Math.abs(data[idx] - bgR[y]) + Math.abs(data[idx+1] - bgG[y]) + Math.abs(data[idx+2] - bgB[y])) / 3;
+      }
+      let avg = s / (x2 - x1); if (avg > best) best = avg;
+    }
+    maxColDiff[y] = best;
+  }
+  const cardH = Math.round(H * SKIN_H_RATIO), yMin = Math.round(H * 0.178);
+  let cands = [];
+  for (let y0 = yMin; y0 <= H - cardH; y0++) {
+    let active = 0, energy = 0;
+    for (let dy = 0; dy < cardH; dy++) {
+      const d = maxColDiff[y0 + dy]; if (d > 34) active++; energy += Math.min(d, 100);
+    }
+    const cov = active / cardH;
+    if (cov >= 0.90) {
+      let topQ = 0, botQ = 0;
+      for (let y = Math.max(yMin - 6, y0 - 6); y < y0; y++) if (maxColDiff[y] < 32) topQ++;
+      for (let y = y0 + cardH; y < Math.min(H, y0 + cardH + Math.round(H * 0.045)); y++) if (maxColDiff[y] < 38) botQ++;
+      cands.push({ y0, score: cov * 100 + topQ * 4 + botQ * 3 + (energy / cardH) * 0.1 });
+    }
+  }
+  cands.sort((a, b) => b.score - a.score);
+  let chosen = [], minP = Math.round(H * 0.42);
+  for (let c of cands) {
+    if (chosen.every(r => Math.abs(r.y0 - c.y0) >= minP)) {
+      chosen.push({ y1: c.y0 / H, y2: (c.y0 + cardH) / H });
+    }
+  }
+  if (chosen.length === 0) chosen.push({ y1: 105 / 472, y2: 288 / 472 });
+  chosen.sort((a, b) => a.y1 - b.y1);
+  if (isLast && chosen.length === 1) {
+    const nextY = chosen[0].y1 + SKIN_PITCH_RATIO;
+    if ((1.0 - nextY) / SKIN_H_RATIO >= 0.65) {
+      chosen.push({ y1: nextY, y2: Math.min(0.995, nextY + SKIN_H_RATIO) });
+    }
+  }
+  return chosen;
+}
+
+function analyzeDisplaySkinLayout(img) {
+  const W = 1024, H = Math.round(W * (img.height / img.width));
+  workCv.width = W; workCv.height = H;
+  workCtx.drawImage(img, 0, 0, W, H);
+  const d = workCtx.getImageData(0, 0, W, H).data;
+  const nb = new Uint8Array(W * H);
+  for (let p = 0, i = 0; p < W * H; p++, i += 4) {
+    const r = d[i], g = d[i + 1], b = d[i + 2];
+    nb[p] = (b > 75 && b > r * 1.65 && r < 65 && g < 125) ? 0 : 1;
+  }
+
+  let cnt = 0, tot = 0;
+  const c0a = Math.round(W * 0.212), c0b = Math.round(W * 0.262);
+  const ya = Math.round(H * 0.2), yb = Math.round(H * 0.98);
+  for (let y = ya; y < yb; y++) for (let x = c0a; x < c0b; x++) { cnt += nb[y * W + x]; tot++; }
+  if (cnt / tot >= 0.12) return null;
+
+  const by1 = Math.round(H * 0.45), by2 = Math.round(H * 0.70);
+  const colOk = new Uint8Array(W);
+  for (let x = 0; x < W; x++) {
+    let sum = 0;
+    for (let y = by1; y < by2; y++) sum += nb[y * W + x];
+    colOk[x] = (sum / (by2 - by1) > 0.5) ? 1 : 0;
+  }
+  let runs = [], st = -1;
+  for (let x = 0; x <= W; x++) {
+    if (x < W && colOk[x]) { if (st < 0) st = x; }
+    else if (st >= 0) { runs.push([st, x - 1]); st = -1; }
+  }
+  let merged = [];
+  runs.forEach(r => {
+    if (merged.length && r[0] - merged[merged.length - 1][1] <= 3) merged[merged.length - 1][1] = r[1];
+    else merged.push([r[0], r[1]]);
+  });
+  merged = merged.filter(r => (r[1] - r[0] + 1) >= W * 0.08 && (r[1] - r[0] + 1) <= W * 0.15);
+  if (merged.length === 0) return null;
+
+  const mid = Math.round((by1 + by2) / 2);
+  let boxes = [];
+  merged.forEach(r => {
+    const w = r[1] - r[0] + 1;
+    const xa = r[0] + Math.round(w * 0.1), xb = r[1] - Math.round(w * 0.1);
+    const rowOk = new Uint8Array(H);
+    for (let y = 0; y < H; y++) {
+      let sum = 0;
+      for (let x = xa; x <= xb; x++) sum += nb[y * W + x];
+      rowOk[y] = (sum / (xb - xa + 1) > 0.5) ? 1 : 0;
+    }
+    if (!rowOk[mid]) return;
+    let t = mid, bt = mid;
+    while (t > 0 && rowOk[t - 1]) t--;
+    while (bt < H - 1 && rowOk[bt + 1]) bt++;
+    const h = bt - t + 1;
+    if (h >= H * 0.30 && h <= H * 0.50) boxes.push({ x1: r[0], x2: r[1], y1: t, y2: bt, H });
+  });
+  return boxes.length ? boxes : null;
+}
+
+function extractAllSkins(items, existing) {
+  let cards = existing ? [...existing] : [];
+
+  function pushCard(img, sx, sy, sw, sh) {
+    const t = tightenCard(img, sx, sy, sw, sh);
+    sx = t.sx; sy = t.sy; sw = t.sw; sh = t.sh;
+    const sig = getSignature(img, sx, sy, sw, sh);
+    let blueCnt = 0;
+    for (let i = 0; i < sig.length; i += 3) {
+      if (sig[i+2] > 75 && sig[i+2] > sig[i] * 1.65 && sig[i] < 65 && sig[i+1] < 125) blueCnt++;
+    }
+    if (blueCnt / 256 > 0.62) return;
+    if (isDupSig(sig, cards, 16.0, 25)) return;
+    cards.push({ img, sx, sy, sw, sh, sig });
+  }
+
+  items.forEach((item, idx) => {
+    const img = item.img;
+    const disp = analyzeDisplaySkinLayout(img);
+    if (disp) {
+      const sc = img.width / 1024;
+      disp.forEach(bx => {
+        const ysc = img.height / bx.H;
+        pushCard(img,
+          bx.x1 * sc + 2 * sc,
+          bx.y1 * ysc + 2 * ysc,
+          (bx.x2 - bx.x1 + 1) * sc - 4 * sc,
+          (bx.y2 - bx.y1 + 1) * ysc - 4 * ysc);
+      });
+      return;
+    }
+
+    const rows = findSkinRows(img, idx === items.length - 1);
+    const sxScale = img.width / 1024, syScale = img.height / 472;
+    rows.forEach(r => {
+      const ry1 = img.height * r.y1, ry2 = img.height * r.y2;
+      for (let c = 0; c < 5; c++) {
+        const sx = img.width * SKIN_X[c][0] + 2 * sxScale;
+        const sw = img.width * (SKIN_X[c][1] - SKIN_X[c][0]) - 4 * sxScale;
+        const sy = ry1 + 2 * syScale, sh = (ry2 - ry1) - 4 * syScale;
+        pushCard(img, sx, sy, sw, sh);
+      }
+    });
+  });
+  return cards;
+}
+
+// ============================================================================
+// NHẬN DIỆN NÚT "ĐÃ SỞ HỮU" BẰNG ĐỐI CHIẾU CHỮ (V27)
+// ============================================================================
+const scanCv = document.createElement('canvas');
+const scanCtx = scanCv.getContext('2d', { willReadFrequently: true });
+
+const OWNED_TPL_W = 72, OWNED_TPL_H = 18;
+const OWNED_TPL_B64 = "TExMTExMTExMTExLS0tMTExMTExMTEtLS0tLTExMTExMTExMS0tMTExMTExMTExMTExLS0tMTExMS0tLS0tLS0xMTExLTExMTExLS0tLS0tLS0tLS0tLS0tMS0tLS0xMTExMTExMS0tLS0tMSkpLS0tLS0tLS0tLTEtLS0tLS0tLS0tLS0tLTExMS0tMTExMTExLS0tLS0tLS0tLS0tLS0tLS0tLS0xMTExMTExMTEtLS1NZUktLS0tLS0tLS0tMTEtLS0tLSkpLS0tLTExMTExMTExMTExMTExMS0tOT1BQTkxLS0tMVVhTVlZMTExMTExMTExMTEtLS1lraFJMS0tLS1JcV0xMTExLS1BVUlFUTUtLTExMTExMTExMTExMTExLS05hbm5tZ1tPS0tWa25sb2FNS0xMS0tLS0tLS0tKS1lualJLS0tLSlp0Z05LSkpKT2Rta2tmUEtLS0tLS0tLS0tMTExMTExLS09peHNucnJjUEtUX1ldX1JLS0xMS0tLS0tLS0tLS1ZeVE1RUEtLS1x1Z09MS0tLUmBeXmNZTk9OTEtKS0xLS0tLTExMTExLS09pdmJUW29zW0xPWF5hW1BLS0tLS05YXl5ZT0tMU15hW1NhXk1LS1x0bFxdW1FNWF5TTlddWWBgW1hOTFVaUktLTExMTExLS1Frdl9OTmJ2ZlFcbnJycmJQS0tLTF1ucXFyYFBXa3NzcmxsXExLS1x1dG9zc2NSZ3BZTV1ybmtmb2tTT2VxW0tLTExMTExLT19yeGtcTlx1bFVjbV9fcnFWS0tLUGxzYFxsaFhodWZebXhpUUtLS1t1cV5idXBXaXRbTV53cF1bcm9TT2h2W0tLTExMTExLUGJ0eW5eTlt2bFNVYGBkdHVZS0pLUGl2aV9cVVdxb1VNXXRqT0tLS1t1aU9UcHJZa3RaTV93Z05Xcm5ST2l3XExLTExMTExLS1Jsd2BPTWB3aFNhcGtodXRZTEpLS1dmbnFwYFpyblJLWnRsUEtLS1t1aE5Sb3JaanRbTWB4Zk1Xcm5TT2l3XExLTExMTExLS05qdl5OVmx2YFVvc1xYb3RaTEtKTVlcWWF0b11vcVdNXnRoT0tLSlt1aE1Sb3Naa3VcTmF4ZU1WcnBUUGp2XExLTExMTExLSk5qeW5nbnZpU1RxdWVkdXVbTEtLUmpvYGBzb1hmdmtkcHRdTEtLSlx1aE9Sb3NZZndsZG96Zk1Tb3dnZXN3XUtLTExMTExLS05kc3JxbWNUTE5fcHFsbm9ZTEtLTVxrcHBtXk5UZ3Bxb2FQS0pLS1huY05RaWxUWGxybmxyYU1OXnBxbG5wWktLTExMTExLSktSVlZWVE9MS0tPVllVVFZQS0tLS01TWFhUTUtMUVZYVU9LS0tLS05UUkxNU1RNTVRYVlJVUUtLTlZYVVNVT0tLS0tLS0tLS0pLS0tLS0pKSktLS0tLS0tLS0tMS0tLS0tLS0tLS0pLS0tLS0tLS0tLS0tLSktKS0tMS0tLS0tLS0tLSkpKS0tLS0tLUVFRUFFRUVFRUFFRUFBQUFBQUE9QUFFRUFBQUVFRUFBRUVFRUFBRUVBQUFBQUVFRUFBQUVBQUFFQUFBQUFBQUFBQUFFQUFBQVlZWVlZWVlZWVlZWVlZWVlZWVVVVVVVWVlZWVldXVldXV1dWVlZWVVVVVVVWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVVVVVlVV";
+const OWNED_NCC_MIN = 0.72;
+const BTN_ART_W = 122.8, BTN_ART_H = 81.0, BTN_ART_TOP = -110.5;
+
+let _ownedTplCv = null;
+const _tplCache = {};
+
+function getOwnedTplCanvas() {
+  if (_ownedTplCv) return _ownedTplCv;
+  const bin = atob(OWNED_TPL_B64);
+  const cv = document.createElement('canvas');
+  cv.width = OWNED_TPL_W; cv.height = OWNED_TPL_H;
+  const c = cv.getContext('2d');
+  const id = c.createImageData(OWNED_TPL_W, OWNED_TPL_H);
+  for (let i = 0; i < OWNED_TPL_W * OWNED_TPL_H; i++) {
+    const v = bin.charCodeAt(i);
+    id.data[i*4] = id.data[i*4+1] = id.data[i*4+2] = v; id.data[i*4+3] = 255;
+  }
+  c.putImageData(id, 0, 0);
+  _ownedTplCv = cv;
+  return cv;
+}
+
+function buildOwnedTemplate(scale, shrink) {
+  const key = scale.toFixed(3) + '_' + shrink;
+  if (_tplCache[key]) return _tplCache[key];
+  const w = Math.max(6, Math.round(OWNED_TPL_W * scale / shrink));
+  const h = Math.max(3, Math.round(OWNED_TPL_H * scale / shrink));
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const c = cv.getContext('2d', { willReadFrequently: true });
+  c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+  c.drawImage(getOwnedTplCanvas(), 0, 0, OWNED_TPL_W, OWNED_TPL_H, 0, 0, w, h);
+  const d = c.getImageData(0, 0, w, h).data;
+  const data = new Float32Array(w * h);
+  let mean = 0;
+  for (let i = 0; i < w * h; i++) { data[i] = d[i*4]; mean += data[i]; }
+  mean /= (w * h);
+  let ss = 0;
+  for (let i = 0; i < w * h; i++) { data[i] -= mean; ss += data[i] * data[i]; }
+  const t = { w, h, data, norm: Math.sqrt(ss) || 1 };
+  _tplCache[key] = t;
+  return t;
+}
+
+function nccAt(gray, GW, x, y, t) {
+  let sum = 0, sq = 0, dot = 0;
+  const w = t.w, h = t.h;
+  for (let j = 0; j < h; j++) {
+    const off = (y + j) * GW + x, to = j * w;
+    for (let i = 0; i < w; i++) {
+      const v = gray[off + i];
+      sum += v; sq += v * v; dot += v * t.data[to + i];
+    }
+  }
+  const n = w * h;
+  const varr = sq - sum * sum / n;
+  if (varr / n < 2.0) return -1;
+  return dot / (Math.sqrt(varr) * t.norm);
+}
+
+function findOwnedLabels(gray, W, H) {
+  const cw = W >> 1, ch = H >> 1;
+  const half = new Float32Array(cw * ch);
+  for (let y = 0; y < ch; y++) {
+    for (let x = 0; x < cw; x++) {
+      const i = (2 * y) * W + 2 * x;
+      half[y * cw + x] = (gray[i] + gray[i + 1] + gray[i + W] + gray[i + W + 1]) / 4;
+    }
+  }
+  const scales = [0.86, 0.93, 1.0, 1.07, 1.15];
+  let cands = [];
+  scales.forEach(s => {
+    const t = buildOwnedTemplate(s, 2);
+    const xMin = Math.floor(cw * 0.15), xMax = cw - t.w - 1, yMax = ch - t.h - 1;
+    for (let y = 0; y <= yMax; y += 2) {
+      for (let x = xMin; x <= xMax; x += 2) {
+        const v = nccAt(half, cw, x, y, t);
+        if (v >= 0.5) cands.push({ v, cx: (x + t.w / 2) * 2, cy: (y + t.h / 2) * 2, s });
+      }
+    }
+  });
+  cands.sort((a, b) => b.v - a.v);
+  let coarse = [];
+  for (const c of cands) {
+    if (coarse.length >= 80) break;
+    if (coarse.every(k => Math.abs(k.cx - c.cx) > 28 || Math.abs(k.cy - c.cy) > 10)) coarse.push(c);
+  }
+
+  let refined = [];
+  coarse.forEach(c => {
+    let best = null;
+    [c.s * 0.95, c.s, c.s * 1.05].forEach(s => {
+      const t = buildOwnedTemplate(s, 1);
+      const bx = Math.round(c.cx - t.w / 2), by = Math.round(c.cy - t.h / 2);
+      for (let dy = -3; dy <= 3; dy++) {
+        for (let dx = -3; dx <= 3; dx++) {
+          const x = bx + dx, y = by + dy;
+          if (x < 0 || y < 0 || x + t.w > W || y + t.h > H) continue;
+          const v = nccAt(gray, W, x, y, t);
+          if (!best || v > best.v) best = { v, cx: x + t.w / 2, cy: y + t.h / 2, s };
+        }
+      }
+    });
+    if (best && best.v >= OWNED_NCC_MIN) refined.push(best);
+  });
+  refined.sort((a, b) => b.v - a.v);
+  let finalList = [];
+  for (const c of refined) {
+    if (finalList.every(k => Math.abs(k.cx - c.cx) > 40 * Math.min(k.s, c.s) || Math.abs(k.cy - c.cy) > 12 * Math.min(k.s, c.s))) finalList.push(c);
+  }
+  return finalList;
+}
+
+async function extractOwnedButtons(items, existing) {
+  let list = existing ? [...existing] : [];
+  for (const it of items) {
+    await nextFrame();
+    const img = it.img;
+    const H = 472;
+    const W = Math.round(H * (img.width / img.height));
+    scanCv.width = W; scanCv.height = H;
+    scanCtx.drawImage(img, 0, 0, W, H);
+    const px = scanCtx.getImageData(0, 0, W, H).data;
+    const gray = new Float32Array(W * H);
+    for (let i = 0, p = 0; p < W * H; p++, i += 4) {
+      gray[p] = 0.299 * px[i] + 0.587 * px[i+1] + 0.114 * px[i+2];
+    }
+
+    const labels = findOwnedLabels(gray, W, H);
+
+    labels.sort((a, b) => a.cy - b.cy);
+    let rows = [];
+    labels.forEach(l => {
+      const row = rows.find(r => Math.abs(r.cy - l.cy) < 30 * l.s);
+      if (row) row.items.push(l); else rows.push({ cy: l.cy, items: [l] });
+    });
+    rows.sort((a, b) => a.cy - b.cy);
+
+    const scaleX = img.width / W, scaleY = img.height / H;
+    rows.forEach(row => {
+      row.items.sort((a, b) => a.cx - b.cx);
+      row.items.forEach(l => {
+        const aw = BTN_ART_W * l.s, ah = BTN_ART_H * l.s;
+        const left = l.cx - aw / 2;
+        const top = l.cy + BTN_ART_TOP * l.s;
+        if (top < 0 || left < 0 || left + aw > W) return;
+        const cropX = left * scaleX, cropY = top * scaleY;
+        const cropW = aw * scaleX, cropH = ah * scaleY;
+        const sig = getSignature(img, cropX, cropY, cropW, cropH);
+        if (!isDupSig(sig, list, 13.5, 60)) {
+          list.push({ img, sx: cropX, sy: cropY, sw: cropW, sh: cropH, sig });
+        }
+      });
+    });
+  }
+  return list;
+}
+
+const NEN_SLOTS_Y = [[34/472, 124/472], [138/472, 228/472], [242/472, 332/472], [346/472, 436/472]];
+const NEN_X = [754/1024, 914/1024];
+
+function isBgOwnedAndValid(img, sx, sy, sw, sh) {
+  workCv.width = 24; workCv.height = 24;
+  workCtx.drawImage(img, sx + sw * 0.05, sy + sh * 0.15, sw * 0.25, sh * 0.70, 0, 0, 24, 24);
+  const d = workCtx.getImageData(0, 0, 24, 24).data;
+  let blueEmpty = 0;
+  for (let i = 0; i < d.length; i += 4) if (d[i+2] > 95 && d[i+2] > d[i] * 1.8 && d[i] < 55) blueEmpty++;
+  if (blueEmpty / (24 * 24) > 0.78) return false;
+
+  workCv.width = 16; workCv.height = 16;
+  workCtx.drawImage(img, sx + sw * 0.84, sy + sh * 0.05, sw * 0.13, sh * 0.24, 0, 0, 16, 16);
+  const tr = workCtx.getImageData(0, 0, 16, 16).data;
+  let rSum = 0, bSum = 0, strongBlueCheck = 0;
+  for (let i = 0; i < tr.length; i += 4) {
+    const r = tr[i], b = tr[i+2];
+    rSum += r; bSum += b;
+    if (b > 155 && r < 105 && (b - r) > 55) strongBlueCheck++;
+  }
+  return (strongBlueCheck >= 35) && (((bSum - rSum) / 256) > 35);
+}
+
+function extractOwnedBgs(items) {
+  let list = [];
+  items.forEach(it => {
+    const img = it.img;
+    const sx = img.width * NEN_X[0], sw = img.width * (NEN_X[1] - NEN_X[0]);
+    NEN_SLOTS_Y.forEach(yr => {
+      const sy = img.height * yr[0], sh = img.height * (yr[1] - yr[0]);
+      if (isBgOwnedAndValid(img, sx, sy, sw, sh)) {
+        const sig = getSignature(img, sx, sy, sw, sh);
+        if (!isDupSig(sig, list, 14.0, 30)) list.push({ img, sx, sy, sw, sh, sig });
+      }
+    });
+  });
+  return list;
+}
+
+// ============================================================================
+// V30: NHẬN DIỆN THẺ "ĐÃ SỞ HỮU" (Tiểu Binh, Biến Về, Hạ Gục, Gia Tốc)
+// ============================================================================
+const OWN2_W = 105, OWN2_H = 22;
+const OWN2_B64 = "XVxdXl1ZVlxZWFZXV1pbXlVVWltUWGFdXVtYWFpcXVxaWlpaWlpaWFhZWVlZW1tYXVtUVV1gXV1cW11dXl1eXF9eWVhbXllZWVlZWlpaWlddXFZWXl9YV1lcXl1bWllbW1tbW1tbW11dW11dXVtZV15eXV1dXV5eWVpdXldSV2JgXlpWWFxaVVpaWlpaWlpaWVlaWlpaXFxgXlxlfIt7YWRfXF5fXVxdWlxcWVpdXVlbWltbW1tbXV5iYl5dYGBcVlhbXV9gX19cXFxcXFxcXF1dW15cWVdXWFxbWllbXWBiXWBeW11hX1lSX2diW1pZVlpaWlpbW1tbWlpbW1tbXV1dXGN9qsOrgW5jXmBgXFpcYV1eZWpoZWBdW11dXV1dXlpcYmllXl1ga2RfXV9hX15cXFxcXFxcXF5eXV5gZ2xxc25taWZkY2RlY19daYSakX5viZaDZ1hZW1tbW1xcXl5cW1pbW1tbXV1hYWR5rNfVu3VmX2FiW1leaGp/oayWd2dgXl9eX19fYFpneomFeHZ+jntnXV1fW1ZdXV1dXV1dXV9fXWBxjqaxs66qp5yNfGxjYVxlha/JxbawvbeSbFtbXVxcXF5eX19fXFxcXF5eX19lZWV0odDYxXZlXWJkXV1iaW2V0+O5gWNjYGFgYWFhY26JrL67sbG4rpFvXVtfXFVeXl5eXl5eXmFhXWGBstvs6+jo5Na6lXFdXl9zmbrLzs3Vza+DZWFjX15eXl9gYGJgXlxeXl5fX2BaYmp/qsu+m3ViWmFlYGFnaGWLz+S2e2FgYWNjY2NjZG2XxNXS0NLTvZhwW11lYllhX2FfYV9fYWFiaF1zst3c1dXS193ez6NuYWZriZ+FboCZmH5hYF5dZmlnY2JkZ2VhYlxdY2VkY2dkZmZzi5B6ZV1eZWppZWRiameDzePEf11XYF1jaWFiZWiVvZx9mbG3i3NmZGxqYm1aYGZiYGRlX2FeZV9yq9LNwXx9jarK38qjcmhgbX50bHVzdWlfbG9iX11jZ2VmaW5wdm5ramdgYWZjY2FlbnNsYWt2kJ2FaGJlYmaGzNi3fmViamdnZVpbZGV1gWdgcXR4cWppgKKZb2JwamRgYWpqXmxkZV9xqc7Dq2lhYnqk0NW8emVeb4eaqKqajnZjaG1jXltiZmhyhpqkrqSZi3VfW2Nlc4uepaegkH2Jsb6SZmJpXGeKzNS/mpOgoZiGcmBfcYyenntqY2aLo5qGk7q+q6aOd2ptf5uikXtoYFhtpMu/n2VbVV+JwdrPiW12n7/a7ePZzKqBaGNjZmVjZG+QudLV2dTOvZlyYGFxjLrX4N/Ww6isvreFYmFjXWaJytzWxcva2dKyi2pje6vU0Jp1XWux1NfEvsbM2eGngGx3m8raw4ltYGh/psXBp2hkXFt7s9bVoH+TxtnZ07zG0tOtfGNkamllZ32w3NrAtL7R1LWEZV+nw9/f0s3Y4NnRwptyZmZbYmOCxt7bx8jJ0ePLoHRddK3czoxsWGKny9rZzLO019u2gWNvl87gwZJvboypvsvPw56TemBroMvOpn6KtLqmj3KTtNW/gmBhZWNjaoe82r6LcIGivK6FammsysyngXeWwdDSsHtlbWxaZGN+wtbGno+DndLVtIJccKnd0IhqWmOlycq3nn+RztG0dlhljMnbuJJudJi7ytDTy7WkgV5po9HWnXVuh5CLgW+PsNK+gWFjYV1lbIKtzbiKc3J9jIRuanqy0byIZFdzq7bHpmtga2hiY2N/wtK5g2ZbecDPuIxgdaHW049pVWOmyMSbe2aFzNCvcFZlisneupBsY4Gqv8fEuJ2Td2BwpsnEmXVhbX+UnpmettXDjG1rZ2JpaXGbyM62qIx2a19Wa4q+0qtvW1JilbvYtXRkZF1jYGOCxtW4gWZacrfEroRcdKTMx5BuWGGhwMSWdGeExMmvcFdlhsDVsIplYmpyoLq9qGdjW1pyo8XGk3V4pcrIvb69xMe7g2ZfbmJjX2N5m73OxdLOsJJvaJbIyKhnVmBjhq7StW5caGRbaGeBw9C1f2dpecLLtI1ZdKLOwopmT2CZvciVaVqDycipd1thf7vTtn9eYmhyn7e4onFpYGWArMG7f3aMu8mnhXyGrcrEhmdfZ2VnaGNpd4OFo7THwrWOcYzByLBuUlZhjLHNr21bYmBcZGiHxs6vemNner/JuJJbb6jRw4tmT2GZvsaVa2CHxsKbbFRfhb3LpX5cZGhyoLW2nmlkaHucvMCrbnagz8eLWU9qn8bBhGlfYmZpbnaDg3Vha4GrxcmebnS5yLh/W1htmrrEo2tbXF1fYmmIw8mqdmJkdrbFt5BbaqXKvYhlUmaZu76PaGCFwMKgb1Jbg7vGpIFfZWdyoLm+rIOGkqa4wKyNZnSh0syXbmmKrMG4gWpiZWtnbIeqtp15YHKfwsSZZ2eqwcGegXuPssC0imNaXV5fX2aDvsiueWBgerfFsotbZ5vDwZ6Fd4auvr2QZVp9uMmzj3V4lsHHqYJiZGp1psPQx8jFyMe6qIxtY22Tw9C4o6a0wcjBiWxfZ2thYn2rxLmfl5u2w7SKZGaOrMDBtq+5xbibcVpbYGBhX2aBvMq0fmBfgbrJtIlcY5C80sm8sLLGxcGYaFVwp8XDt6+wvc/HrIBiZGx2orrLydbLw7KWgXBhYGV+pr68t7iqtsTDjm1faGRgX2yJqre4wLa8rpNzXF5tiafEysLEuJx9YVdcYWNiYGZ9sb2ue2Fgf7C8rYNdYHefw8vLvrSzvLaYaldki6nFxcS6vMG8qnlhZW1wio+dmJiNiH9vaGdiY2Ruf5CUkYx7iJKYeG5lZ2FiYWJug5adnpCRgW5kWl1ebX2Yn5ebi3VkXl9dYWZkYWNtkJGJbGRfcYmQjHRcYFx2j5eclIl/j4t/Y1tebH6bnpmIiI+Ri3FhZ2xmb2VlXWBYXGRhY2dkamlmY2RnY1tXWFZeWm5sY2lpZF1eY2RgZ1xkX1pmZ2VdXlloZ19sXFlVX2VgXmVoYmBbamNiXWVhX19hZ2JYX1NeZGVnaWJbXV5eWFtdVl9cZmNYWmFeWmpf";
+const OWN2_NCC_MIN = 0.80;
+const _own2Cache = {};
+let _own2Base = null;
+
+function own2Base() {
+  if (_own2Base) return _own2Base;
+  const bin = atob(OWN2_B64);
+  const cv = document.createElement('canvas'); cv.width = OWN2_W; cv.height = OWN2_H;
+  const c = cv.getContext('2d');
+  const id = c.createImageData(OWN2_W, OWN2_H);
+  for (let i = 0; i < OWN2_W * OWN2_H; i++) { const v = bin.charCodeAt(i); id.data[i*4] = id.data[i*4+1] = id.data[i*4+2] = v; id.data[i*4+3] = 255; }
+  c.putImageData(id, 0, 0);
+  _own2Base = cv;
+  return cv;
+}
+function own2Template(scale) {
+  const key = scale.toFixed(3);
+  if (_own2Cache[key]) return _own2Cache[key];
+  const w = Math.max(8, Math.round(OWN2_W * scale)), h = Math.max(4, Math.round(OWN2_H * scale));
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const c = cv.getContext('2d', { willReadFrequently: true });
+  c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+  c.drawImage(own2Base(), 0, 0, OWN2_W, OWN2_H, 0, 0, w, h);
+  const d = c.getImageData(0, 0, w, h).data;
+  const data = new Float32Array(w * h); let mean = 0;
+  for (let i = 0; i < w * h; i++) { data[i] = d[i*4]; mean += data[i]; }
+  mean /= (w * h);
+  let ss = 0;
+  for (let i = 0; i < w * h; i++) { data[i] -= mean; ss += data[i] * data[i]; }
+  return (_own2Cache[key] = { w, h, data, norm: Math.sqrt(ss) || 1 });
+}
+
+function findOwnedCardLabels(white, bin, W, H) {
+  const IW = W + 1;
+  const integ = new Int32Array(IW * (H + 1));
+  for (let y = 0; y < H; y++) {
+    let run = 0;
+    for (let x = 0; x < W; x++) { run += bin[y * W + x]; integ[(y + 1) * IW + x + 1] = integ[y * IW + x + 1] + run; }
+  }
+  const X0 = Math.floor(W * 0.45);
+  let cands = [];
+  [0.92, 0.96, 1.0, 1.04, 1.08].forEach(sc => {
+    const t = own2Template(sc);
+    const area = t.w * t.h;
+    for (let y = 0; y <= H - t.h; y += 2) {
+      for (let x = X0; x <= W - t.w; x += 2) {
+        const cnt = integ[(y + t.h) * IW + x + t.w] - integ[y * IW + x + t.w] - integ[(y + t.h) * IW + x] + integ[y * IW + x];
+        const fr = cnt / area;
+        if (fr < 0.04 || fr > 0.6) continue;
+        const v = nccAt(white, W, x, y, t);
+        if (v >= 0.5) cands.push({ v, x, y, sc });
+      }
+    }
+  });
+  cands.sort((a, b) => b.v - a.v);
+  let peaks = [];
+  for (const c of cands) {
+    if (peaks.length >= 60) break;
+    if (peaks.every(k => Math.abs(k.x - c.x) > 30 || Math.abs(k.y - c.y) > 12)) peaks.push(c);
+  }
+  let refined = [];
+  peaks.forEach(c => {
+    let best = null;
+    [c.sc - 0.02, c.sc, c.sc + 0.02].forEach(sc => {
+      const t = own2Template(sc);
+      for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+        const x = c.x + dx, y = c.y + dy;
+        if (x < 0 || y < 0 || x + t.w > W || y + t.h > H) continue;
+        const v = nccAt(white, W, x, y, t);
+        if (!best || v > best.v) best = { v, cx: x + t.w / 2, cy: y + t.h / 2, s: sc };
+      }
+    });
+    if (best && best.v >= OWN2_NCC_MIN) refined.push(best);
+  });
+  refined.sort((a, b) => b.v - a.v);
+  let out = [];
+  for (const c of refined) if (out.every(k => Math.abs(k.cx - c.cx) > 40 || Math.abs(k.cy - c.cy) > 14)) out.push(c);
+  return out;
+}
+
+function isGoldBar(px, W, H, cx, cy, s) {
+  let gold = 0, tot = 0;
+  const xa = Math.round(cx - 95 * s), xb = Math.round(cx + 95 * s);
+  const ya = Math.round(cy + 13 * s), yb = Math.round(cy + 21 * s);
+  for (let y = Math.max(0, ya); y <= Math.min(H - 1, yb); y++) {
+    for (let x = Math.max(0, xa); x <= Math.min(W - 1, xb); x++) {
+      const i = (y * W + x) * 4, r = px[i], g = px[i+1], b = px[i+2];
+      tot++;
+      if (r > 110 && g > 100 && r - b >= 35 && g - b >= 25) gold++;
+    }
+  }
+  return tot > 0 && gold / tot >= 0.35;
+}
+
+function hasTopBorder(px, W, H, cx, cy, s) {
+  const xa = Math.round(cx - 80 * s), xb = Math.round(cx + 80 * s);
+  const rowMean = y => {
+    if (y < 0 || y >= H) return null;
+    let sum = 0, n = 0;
+    for (let x = xa; x <= xb; x++) { const i = (y * W + x) * 4; sum += px[i] + px[i+1] + px[i+2]; n++; }
+    return sum / (3 * n);
+  };
+  for (let y = Math.round(cy - 202 * s); y <= Math.round(cy - 192 * s); y++) {
+    const a = rowMean(y), u = rowMean(y - 7), d = rowMean(y + 7);
+    if (a === null || u === null || d === null) return false;
+    if (a - 0.5 * (u + d) >= 12) return true;
+  }
+  return false;
+}
+
+async function extractOwnedCards(items, existing, opts) {
+  const goldOnly = !!(opts && opts.goldOnly);
+  let list = existing ? [...existing] : [];
+  for (const it of items) {
+    await nextFrame();
+    const img = it.img;
+    const H = 1080, W = Math.round(H * (img.width / img.height));
+    scanCv.width = W; scanCv.height = H;
+    drawHQ(scanCtx, img, 0, 0, img.width, img.height, 0, 0, W, H);
+    const px = scanCtx.getImageData(0, 0, W, H).data;
+    const white = new Float32Array(W * H);
+    const bin = new Uint8Array(W * H);
+    for (let p = 0, i = 0; p < W * H; p++, i += 4) {
+      const m = Math.min(px[i], px[i+1], px[i+2]);
+      white[p] = m; bin[p] = m > 150 ? 1 : 0;
+    }
+    const labels = findOwnedCardLabels(white, bin, W, H);
+    labels.sort((a, b) => a.cy - b.cy);
+    let rows = [];
+    labels.forEach(l => {
+      const row = rows.find(r => Math.abs(r.cy - l.cy) < 30);
+      if (row) row.items.push(l); else rows.push({ cy: l.cy, items: [l] });
+    });
+    rows.sort((a, b) => a.cy - b.cy);
+    const k = img.height / H;
+    for (const row of rows) {
+      row.items.sort((a, b) => a.cx - b.cx);
+      for (const l of row.items) {
+        const s = l.s;
+        const left = l.cx - 103 * s, width = 206 * s, top = l.cy - 191 * s, height = 206 * s;
+        if (left < 0 || top < 0 || left + width > W || top + height > H) continue;
+        if (!hasTopBorder(px, W, H, l.cx, l.cy, s)) continue;
+        if (goldOnly && !isGoldBar(px, W, H, l.cx, l.cy, s)) continue;
+        const sx = left * k, sy = top * k, sw = width * k, sh = height * k;
+        const sig = getSignature(img, sx, sy, sw, sh);
+        if (!isDupSig(sig, list, 14.5, 40)) list.push({ img, sx, sy, sw, sh, sig });
+      }
+    }
+  }
+  return list;
+}
+
+const GRID6_COLS = [[723/1024, 817/1024], [832/1024, 926/1024]];
+const GRID6_ROWS = [[73/472, 167/472], [178/472, 272/472], [283/472, 377/472]];
+
+function isGoldenFrameAndUnlocked(img, sx, sy, sw, sh) {
+  workCv.width = 24; workCv.height = 6;
+  workCtx.drawImage(img, sx + sw * 0.15, sy + sh * 0.88, sw * 0.70, sh * 0.10, 0, 0, 24, 6);
+  const bot = workCtx.getImageData(0, 0, 24, 6).data;
+  let rSum = 0, gSum = 0, bSum = 0, cnt = 24 * 6;
+  for (let i = 0; i < bot.length; i += 4) { rSum += bot[i]; gSum += bot[i+1]; bSum += bot[i+2]; }
+  const rAvg = rSum/cnt, gAvg = gSum/cnt, bAvg = bSum/cnt;
+  if (!((rAvg > bAvg + 10) && (gAvg > bAvg + 8) && (rAvg > 95))) return false;
+
+  workCv.width = 14; workCv.height = 14;
+  workCtx.drawImage(img, sx + sw * 0.78, sy + sh * 0.04, sw * 0.18, sh * 0.20, 0, 0, 14, 14);
+  const tr = workCtx.getImageData(0, 0, 14, 14).data;
+  let grayLockPixels = 0;
+  for (let i = 0; i < tr.length; i += 4) {
+    const r = tr[i], g = tr[i+1], b = tr[i+2];
+    if (r > 115 && r < 195 && Math.abs(r - g) < 10 && Math.abs(g - b) < 12 && Math.abs(r - b) < 12) grayLockPixels++;
+  }
+  return grayLockPixels < 28;
+}
+
+function extractGoldenItems(items, existing) {
+  let list = existing ? [...existing] : [];
+  items.forEach(it => {
+    const img = it.img;
+    GRID6_ROWS.forEach(yr => {
+      const sy = img.height * yr[0], sh = img.height * (yr[1] - yr[0]);
+      GRID6_COLS.forEach(xr => {
+        const sx = img.width * xr[0], sw = img.width * (xr[1] - xr[0]);
+        if (isGoldenFrameAndUnlocked(img, sx, sy, sw, sh)) {
+          const sig = getSignature(img, sx, sy, sw, sh);
+          if (!isDupSig(sig, list, 14.5, 30)) list.push({ img, sx, sy, sw, sh, sig });
+        }
+      });
+    });
+  });
+  return list;
+}
+
+function drawMandatoryServiceText(ctx, targetW, pHeight) {
+  const lines = ["MỌI DỊCH VỤ HOK GLOBAL,", "LIÊN HỆ NGUYÊN PHẠM", "ZL:0335322401"];
+  const fontFamily = "Impact, 'Arial Narrow Bold', 'Segoe UI', Arial, sans-serif";
+  const maxBlockW = targetW * 0.37;
+  const rightX = targetW - Math.round(targetW * 0.02);
+
+  ctx.save();
+  ctx.textAlign = "right";
+  ctx.textBaseline = "alphabetic";
+  ctx.lineJoin = "round";
+
+  let size = Math.round(targetW * 0.029);
+  ctx.font = `900 ${size}px ${fontFamily}`;
+  let widest = Math.max(...lines.map(t => ctx.measureText(t).width));
+  if (widest > maxBlockW) {
+    size = Math.floor(size * (maxBlockW / widest));
+    ctx.font = `900 ${size}px ${fontFamily}`;
+  }
+
+  const lineH = Math.round(size * 1.28);
+  const blockH = lineH * lines.length;
+  const bottomY = pHeight > 0 ? pHeight - Math.round(targetW * 0.02) : blockH + 20;
+  const firstBaseline = bottomY - blockH + lineH - Math.round(size * 0.22);
+
+  lines.forEach((t, i) => {
+    const y = firstBaseline + i * lineH;
+    ctx.lineWidth = Math.max(4, Math.round(size * 0.16));
+    ctx.strokeStyle = "#000000";
+    ctx.strokeText(t, rightX, y);
+    ctx.fillStyle = "#facc15";
+    ctx.fillText(t, rightX, y);
+  });
+  ctx.restore();
+}
+
+function getGemCrop(img) {
+  const W = img.width, H = img.height;
+  const isFullScreenshot = (W >= 900 && W / H > 1.9);
+  if (!isFullScreenshot) return { sx: 0, sy: 0, sw: W, sh: H };
+  const sx = Math.max(0, W - 0.7382 * H);
+  const ex = Math.min(W, W - 0.3822 * H);
+  const sy = 0.6271 * H;
+  const ey = Math.min(H, 0.8039 * H);
+  return { sx, sy, sw: ex - sx, sh: ey - sy };
+}
+
+function onProfileCropModeChange() {
+  const mode = document.getElementById('profileBottomCrop').value;
+  const wrap = document.getElementById('cropPctWrap');
+  if (wrap) wrap.style.display = (mode === 'keep_full') ? 'none' : 'flex';
+}
+
+// ============================================================================
+// 5. HÀM GHÉP TỔNG V32:
+// - Chế độ rộng: Xích Hồ Sơ sát trái hết mức (offX = 0) khi có Hiệu ứng hạ / Biến về / Thông báo hạ / Nền / Nút bấm bên phải
+// - Nếu bên phải không có mục nào (hoặc chọn phóng to): Tự động phóng to Hồ Sơ vừa khít 100% khung hình (canvasW) và cắt qua phần Điểm Nhấn!
+// ============================================================================
+const BTN_RATIO = BTN_ART_W / BTN_ART_H;
+const MAX_CANVAS_PIXELS = 14000000;
+const MAX_CANVAS_SIDE = 16000;
+const PAGE_BG = "#162c54";
+
+function pickButtonPack(emptyW, areaH, count, maxN, maxTw, minCov) {
+  maxN = maxN || 8;
+  minCov = (minCov == null) ? 0.5 : minCov;
+  let best = null;
+  for (let n = 1; n <= maxN; n++) {
+    const tw = emptyW / n, th = tw / BTN_RATIO;
+    if (maxTw && tw > maxTw) continue;
+    const rows = Math.floor(areaH / th + 1e-6);
+    if (rows < 1) continue;
+    const use = Math.min(count, n * rows);
+    const rowsUsed = Math.ceil(use / n);
+    const coverage = (rowsUsed * th) / areaH;
+    const score = coverage + 0.15 * (use / count) + (use >= count ? 0.05 : 0);
+    if (!best || score > best.score) best = { n, tw, th, rows, use, rowsUsed, coverage, score };
+  }
+  return (best && best.coverage >= minCov) ? best : null;
+}
+
+// Xếp các ô vuông Hiệu ứng (Biến về, Thông báo hạ, Gia tốc, Lính, Nền, Đá tím, Tỉ lệ thắng) vào khung bên phải Hồ Sơ
+function packRightSideEffects(items, boxW, maxH, k) {
+  if (!items || items.length === 0 || boxW <= 20 || maxH <= 20) return null;
+  const gap = Math.round(6 * k);
+  const targetRowH = Math.min(Math.round(maxH * 0.46), Math.max(Math.round(90 * k), Math.round(boxW * 0.25)));
+  let rows = [];
+  let curRow = [], curSumRatio = 0;
+
+  items.forEach(it => {
+    const nextSum = curSumRatio + it.ratio;
+    const estW = nextSum * targetRowH + gap * curRow.length;
+    if (curRow.length > 0 && estW > boxW) {
+      rows.push({ items: curRow, sumRatio: curSumRatio });
+      curRow = [it];
+      curSumRatio = it.ratio;
+    } else {
+      curRow.push(it);
+      curSumRatio = nextSum;
+    }
+  });
+  if (curRow.length > 0) rows.push({ items: curRow, sumRatio: curSumRatio });
+
+  let rowLayouts = [];
+  let totalH = 0;
+  rows.forEach(r => {
+    const availW = boxW - gap * (r.items.length - 1);
+    let rh = Math.min(targetRowH, Math.floor(availW / r.sumRatio));
+    rh = Math.max(Math.round(45 * k), rh);
+    rowLayouts.push({ items: r.items, h: rh, sumRatio: r.sumRatio });
+    totalH += rh;
+  });
+  totalH += gap * Math.max(0, rowLayouts.length - 1);
+
+  if (totalH > maxH && totalH > 0) {
+    const sc = (maxH - gap * Math.max(0, rowLayouts.length - 1)) / (totalH - gap * Math.max(0, rowLayouts.length - 1));
+    totalH = 0;
+    rowLayouts.forEach(rl => {
+      rl.h = Math.max(24, Math.floor(rl.h * sc));
+      totalH += rl.h;
+    });
+    totalH += gap * Math.max(0, rowLayouts.length - 1);
+  }
+
+  return { rows: rowLayouts, totalH, gap };
+}
+
+function planCollage(P, baseW, f) {
+  f = f || 1;
+  const canvasW = Math.round(baseW * f);
+  const k = baseW / 1800;
+  const L = { targetW: baseW, baseW, canvasW, k, f };
+  const {
+    profile, stats, gemImg, skins, buttons, bgs, squares,
+    colsOut, accCode, winrateFilter, profileBottomCrop, cropPct, wideProfileMode
+  } = P;
+
+  // --- Winrate & Hàng vật phẩm phụ (Nền, Thông báo hạ, Biến về, Gia tốc, Tiểu binh, Đá tím, Tỉ lệ thắng)
+  L.wr = null;
+  if (stats && winrateFilter !== 'never') {
+    if (stats.width / stats.height > 2.3) L.wr = { x: 0, y: 0, w: stats.width, h: stats.height };
+    else L.wr = { x: Math.round(stats.width * 0.675), y: Math.round(stats.height * 0.185), w: Math.round(stats.width * 0.235), h: Math.round(stats.height * 0.145) };
+  }
+  L.gemCrop = gemImg ? getGemCrop(gemImg) : null;
+
+  const effectItems = [];
+  bgs.forEach(b => effectItems.push({ kind: 'src', src: b, ratio: b.sw / b.sh }));
+  squares.forEach(b => effectItems.push({ kind: 'src', src: b, ratio: b.sw / b.sh }));
+  if (L.gemCrop) effectItems.push({ kind: 'gem', ratio: L.gemCrop.sw / L.gemCrop.sh });
+  if (L.wr && stats) effectItems.push({ kind: 'wr', ratio: L.wr.w / L.wr.h });
+
+  const hasEffects = effectItems.length > 0;
+
+  // --- Quyết định ở Chế độ rộng (f > 1):
+  // Khi nào xích Hồ Sơ sang trái hết mức (offX = 0, rộng baseW) để dành phần bên phải cho Hiệu ứng / Nút bấm?
+  // Khi nào phóng to Hồ Sơ vừa khít toàn khung (canvasW) và cắt qua Điểm Nhấn?
+  let useLeftProfileWithRightPanel = false;
+  if (f > 1 && profile) {
+    if (wideProfileMode === 'zoom_full') {
+      useLeftProfileWithRightPanel = false;
+    } else if (wideProfileMode === 'left_panel') {
+      useLeftProfileWithRightPanel = (hasEffects || buttons.length > 0);
+    } else {
+      // auto_smart (Mặc định):
+      // Dành phần bên phải cho Hiệu ứng hạ / Biến về / Thông báo hạ / Nền, hoặc Nút bấm (nếu có)
+      useLeftProfileWithRightPanel = (hasEffects || buttons.length >= 4);
+    }
+  }
+
+  // Bề rộng thực tế để vẽ Hồ Sơ:
+  // - Nếu xích sang trái để nhường phần bên phải -> pDrawW = baseW (x = 0 sát lề trái tuyệt đối)
+  // - Nếu bên phải trống (hoặc chế độ zoom_full / cổ điển) -> pDrawW = canvasW (phóng to vừa khít 100% khung hình, không bao giờ trống 2 bên!)
+  const pDrawW = (f > 1 && !useLeftProfileWithRightPanel) ? canvasW : baseW;
+  L.pDrawW = pDrawW;
+  L.offX = 0; // Luôn bắt đầu sát trái = 0 (không bao giờ căn giữa để lộ 2 dải xanh trống 2 bên)
+
+  // Quyết định Hiệu ứng nằm ở đâu (Đè lên góc dưới Hồ Sơ hay nằm ở cột phải ngoài Hồ Sơ):
+  let overlayEffects = [];
+  let rightPanelEffects = [];
+  if (hasEffects) {
+    if (useLeftProfileWithRightPanel) {
+      rightPanelEffects = [...effectItems];
+    } else {
+      overlayEffects = [...effectItems];
+    }
+  }
+
+  // --- Cắt ảnh Hồ Sơ (Trái & Đáy "Điểm Nhấn"):
+  L.pCrop = null; L.pHeight = 0; L.pFullH = 0; L.isShortProfile = false;
+  const userCropRatio = Math.max(0.65, Math.min(0.95, (cropPct || 76) / 100));
+  if (profile) {
+    let cx = 0;
+    if (profile.width / profile.height > 2.4) {
+      L.isShortProfile = true;
+    } else {
+      cx = Math.round(profile.width * 0.176);
+    }
+    const rawW = profile.width - cx;
+    const rawH = profile.height;
+    L.pFullH = Math.round(rawH * (pDrawW / rawW));
+
+    // Cắt qua phần Điểm Nhấn & Khách gần đây ở đáy Hồ Sơ (ngay dưới hàng số Trận Đấu / Tướng / SKIN như ảnh mẫu):
+    let cropBottomRatio = 1.0;
+    if (!L.isShortProfile) {
+      if (profileBottomCrop === 'crop_highlight') {
+        cropBottomRatio = userCropRatio;
+      } else if (profileBottomCrop === 'keep_full') {
+        cropBottomRatio = 1.0;
+      } else {
+        // auto: Nếu không có Hiệu ứng đè ở góc dưới trái Hồ Sơ -> Cắt bỏ phần Điểm Nhấn & Khách gần đây
+        if (overlayEffects.length === 0) {
+          cropBottomRatio = userCropRatio;
+        }
+      }
+    }
+
+    const cropH = Math.round(rawH * cropBottomRatio);
+    L.pCrop = { x: cx, y: 0, w: rawW, h: cropH };
+    L.pHeight = Math.round(cropH * (pDrawW / rawW));
+  }
+
+  // --- Tính toán hàng Hiệu ứng ở góc dưới bên trái Hồ Sơ (nếu không đưa sang cột phải)
+  L.rowItems = overlayEffects;
+  L.rowGap = Math.round(6 * k * (pDrawW / baseW));
+  L.rowMargin = Math.round(6 * k);
+  L.rowH = Math.round(pDrawW * 0.088);
+  if (overlayEffects.length > 0) {
+    const sumRatio = overlayEffects.reduce((a, it) => a + it.ratio, 0);
+    const availW = pDrawW - L.rowMargin * 2 - L.rowGap * (overlayEffects.length - 1);
+    if (availW > 40 && sumRatio * L.rowH > availW) {
+      L.rowH = Math.max(Math.round(36 * k), Math.floor(availW / sumRatio));
+    }
+  }
+  L.extH = (L.isShortProfile && overlayEffects.length > 0) ? L.rowH + L.rowGap : 0;
+
+  // --- Tính toán Khu vực Bên Phải ngoài Hồ Sơ (khi ở Chế độ rộng & xích Hồ Sơ sang trái)
+  let remaining = [...buttons];
+  L.rightPanel = null;
+  if (f > 1 && L.pCrop && useLeftProfileWithRightPanel) {
+    const hdrH = L.pHeight + L.extH;
+    const gapL = Math.round(8 * k);
+    const panelX = baseW + gapL;
+    const panelW = canvasW - panelX;
+
+    if (panelW > 40) {
+      let curRightY = 0;
+      const rightBlocks = [];
+
+      // 1. Các ô Hiệu ứng hạ / Biến về / Thông báo hạ / Gia tốc / Tiểu binh / Nền ở bên phải
+      if (rightPanelEffects.length > 0 && hdrH - curRightY > 40) {
+        const availEffH = remaining.length > 0 ? Math.round((hdrH - curRightY) * 0.55) : (hdrH - curRightY);
+        const effPack = packRightSideEffects(rightPanelEffects, panelW, availEffH, k);
+        if (effPack) {
+          rightBlocks.push({ type: 'effects', pack: effPack, h: effPack.totalH });
+          curRightY += effPack.totalH + Math.round(8 * k);
+        }
+      }
+
+      // 2. Nút bấm lấp phần còn lại bên phải Hồ Sơ
+      const remH = hdrH - curRightY;
+      if (remaining.length > 0 && remH > Math.round(60 * k)) {
+        const maxN = Math.max(1, Math.floor(panelW / (baseW / 9)));
+        const minCov = rightBlocks.length > 0 ? 0.15 : 0.45;
+        const pk = pickButtonPack(panelW, remH, remaining.length, maxN, baseW * 0.22, minCov);
+        if (pk) {
+          rightBlocks.push({ type: 'buttons', pk, items: remaining.slice(0, pk.use), h: pk.rowsUsed * pk.th });
+          remaining = remaining.slice(pk.use);
+        }
+      }
+
+      if (rightBlocks.length > 0) {
+        L.rightPanel = { x: panelX, w: panelW, h: hdrH, blocks: rightBlocks };
+      } else {
+        // Nếu cuối cùng không xếp được khối nào vào bên phải -> Tự động phóng to Hồ Sơ vừa khít toàn khung canvasW và cắt Điểm Nhấn!
+        L.pDrawW = canvasW;
+        const rawW = L.pCrop.w;
+        const rawH = profile.height;
+        L.pFullH = Math.round(rawH * (canvasW / rawW));
+        const cropRatio = (!L.isShortProfile && profileBottomCrop !== 'keep_full' && overlayEffects.length === 0) ? userCropRatio : (L.pCrop.h / rawH);
+        L.pCrop.h = Math.round(rawH * cropRatio);
+        L.pHeight = Math.round(L.pCrop.h * (canvasW / rawW));
+      }
+    }
+  }
+
+  L.barH = accCode ? Math.round(40 * k) : 0;
+
+  // --- Skin (chế độ rộng: thêm cột, mỗi skin giữ cỡ như chế độ cũ)
+  const cols = Math.max(1, Math.round(colsOut * f));
+  L.cols = cols;
+  L.skinW = canvasW / cols;
+  L.skinH = Math.round(L.skinW * (183 / 117));
+  L.fullRows = Math.floor(skins.length / cols);
+  L.rem = skins.length % cols;
+  L.cellX = c => Math.round(c * L.skinW);
+
+  // --- Nút ghép vào chỗ trống của hàng skin cuối
+  L.pack = null;
+  if (L.rem > 0 && remaining.length > 0) {
+    const usedW = L.cellX(L.rem);
+    const emptyW = canvasW - usedW;
+    const maxN = f > 1 ? Math.max(8, Math.floor(emptyW / (baseW / 8))) : 8;
+    const pk = pickButtonPack(emptyW, L.skinH, remaining.length, maxN);
+    if (pk) { L.pack = Object.assign({ usedW, emptyW, items: remaining.slice(0, pk.use) }, pk); remaining = remaining.slice(pk.use); }
+  }
+  L.skinSectionH = (L.fullRows + (L.rem > 0 ? 1 : 0)) * L.skinH;
+
+  // --- Khối nút phía dưới
+  L.btn = null; let btnSectionH = 0;
+  if (remaining.length > 0) {
+    const maxC = Math.round(8 * f), minC = Math.round(6 * f);
+    const rowsB = Math.ceil(remaining.length / maxC);
+    const colsB = Math.min(maxC, Math.max(minC, Math.ceil(remaining.length / rowsB)));
+    const tw = canvasW / colsB, th = Math.round(tw / BTN_RATIO);
+    L.btn = { rowsB, colsB, tw, th, items: remaining };
+    btnSectionH = rowsB * th;
+  }
+  L.btnSectionH = btnSectionH;
+  L.totalH = Math.max(Math.round(280 * k), L.pHeight + L.extH + L.barH + L.skinSectionH + btnSectionH);
+  return L;
+}
+
+async function renderCollage(P, baseW, f) {
+  const L = planCollage(P, baseW, f);
+  const { profile, stats, gemImg, skins, accCode } = P;
+  const W = L.canvasW;
+  const canvas = document.getElementById('canvas');
+  canvas.width = W; canvas.height = L.totalH;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.fillStyle = PAGE_BG;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  let curY = 0;
+
+  if (profile) {
+    ctx.save();
+    ctx.translate(L.offX, 0);
+    const pc = L.pCrop;
+    drawHQ(ctx, profile, pc.x, pc.y, pc.w, pc.h, 0, 0, L.pDrawW, L.pHeight);
+    if (L.extH > 0) {
+      drawHQ(ctx, profile, pc.x, pc.y + pc.h * 0.88, pc.w, pc.h * 0.12, 0, L.pHeight - 2, L.pDrawW, L.extH + 4);
+    }
+    drawNguyenPhamBrandOnCollage(ctx, L.pDrawW, L.pFullH || L.pHeight, L.isShortProfile);
+
+    const totalHeaderH = L.pHeight + L.extH;
+
+    // 1. Vẽ hàng Hiệu ứng ở góc dưới bên trái Hồ Sơ (khi ở chế độ cổ điển hoặc zoom_full)
+    if (L.rowItems.length > 0) {
+      const rowY = totalHeaderH - L.rowH;
+      let rx = L.rowMargin;
+      L.rowItems.forEach(it => {
+        const w = Math.round(it.ratio * L.rowH);
+        if (it.kind === 'src') drawTile(ctx, it.src, rx, rowY, w, L.rowH);
+        else if (it.kind === 'gem') drawHQ(ctx, gemImg, L.gemCrop.sx, L.gemCrop.sy, L.gemCrop.sw, L.gemCrop.sh, rx, rowY, w, L.rowH);
+        else if (it.kind === 'wr') drawHQ(ctx, stats, L.wr.x, L.wr.y, L.wr.w, L.wr.h, rx, rowY, w, L.rowH);
+        rx += w + L.rowGap;
+      });
+    }
+    ctx.restore();
+
+    // 2. Chế độ rộng: Vẽ phần bên phải ngoài Hồ Sơ (Hiệu ứng hạ / Biến về / Thông báo hạ + Nút bấm)
+    if (L.rightPanel) {
+      const rp = L.rightPanel;
+      const gapB = Math.round(8 * L.k);
+      const totalUsedH = rp.blocks.reduce((a, b) => a + b.h, 0) + gapB * Math.max(0, rp.blocks.length - 1);
+      let by = Math.max(0, Math.floor((rp.h - totalUsedH) / 2));
+
+      rp.blocks.forEach(blk => {
+        if (blk.type === 'effects') {
+          const pk = blk.pack;
+          pk.rows.forEach(rl => {
+            const rowW = rl.items.reduce((a, it) => a + Math.round(it.ratio * rl.h), 0) + pk.gap * Math.max(0, rl.items.length - 1);
+            let rx = rp.x + Math.max(0, Math.floor((rp.w - rowW) / 2));
+            rl.items.forEach(it => {
+              const w = Math.round(it.ratio * rl.h);
+              if (it.kind === 'src') drawTile(ctx, it.src, rx, by, w, rl.h);
+              else if (it.kind === 'gem') drawHQ(ctx, gemImg, L.gemCrop.sx, L.gemCrop.sy, L.gemCrop.sw, L.gemCrop.sh, rx, by, w, rl.h);
+              else if (it.kind === 'wr') drawHQ(ctx, stats, L.wr.x, L.wr.y, L.wr.w, L.wr.h, rx, by, w, rl.h);
+              rx += w + pk.gap;
+            });
+            by += rl.h + pk.gap;
+          });
+          by += gapB - pk.gap;
+        } else if (blk.type === 'buttons') {
+          const pk = blk.pk;
+          blk.items.forEach((b, i) => {
+            const col = i % pk.n, row = Math.floor(i / pk.n);
+            const x0 = rp.x + Math.round(col * pk.tw), x1 = rp.x + Math.round((col + 1) * pk.tw);
+            const y0 = by + Math.round(row * pk.th), y1 = by + Math.round((row + 1) * pk.th);
+            drawTile(ctx, b, x0, y0, x1 - x0, y1 - y0);
+          });
+          by += blk.h + gapB;
+        }
+      });
+    }
+    curY += L.pHeight + L.extH;
+  }
+  await nextFrame();
+
+  if (L.barH > 0) {
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, curY, W, L.barH);
+    ctx.fillStyle = "#0f172a"; ctx.font = `bold ${Math.round(23 * L.k)}px 'Segoe UI', Arial, sans-serif`; ctx.textAlign = "center";
+    ctx.fillText(accCode, W / 2, curY + Math.round(28 * L.k));
+    curY += L.barH;
+  }
+
+  // --- Skin: mỗi ô lấp kín 100% (mép nguyên pixel), không chừa khe
+  const cols = L.cols;
+  const drawSkinRow = (startIdx, count, y) => {
+    for (let c = 0; c < count; c++) {
+      const s = skins[startIdx + c];
+      const x0 = L.cellX(c), x1 = L.cellX(c + 1);
+      drawTile(ctx, s, x0, y, x1 - x0, L.skinH);
+    }
+  };
+  for (let r = 0; r < L.fullRows; r++) {
+    drawSkinRow(r * cols, cols, curY);
+    curY += L.skinH;
+    if (r % 2 === 1) await nextFrame();
+  }
+  if (L.rem > 0) {
+    drawSkinRow(L.fullRows * cols, L.rem, curY);
+    if (L.pack) {
+      const pk = L.pack;
+      const bandH = pk.rowsUsed * pk.th;
+      const offY = Math.floor((L.skinH - bandH) / 2);
+      pk.items.forEach((b, i) => {
+        const col = i % pk.n, row = Math.floor(i / pk.n);
+        const x0 = pk.usedW + Math.round(col * pk.tw), x1 = pk.usedW + Math.round((col + 1) * pk.tw);
+        const y0 = curY + offY + Math.round(row * pk.th), y1 = curY + offY + Math.round((row + 1) * pk.th);
+        drawTile(ctx, b, x0, y0, x1 - x0, y1 - y0);
+      });
+    }
+    curY += L.skinH;
+  }
+  await nextFrame();
+
+  // --- Nút
+  if (L.btn) {
+    const B = L.btn;
+    for (let r = 0; r < B.rowsB; r++) {
+      const rowBtns = B.items.slice(r * B.colsB, (r + 1) * B.colsB);
+      const startX = Math.round((W - rowBtns.length * B.tw) / 2);
+      rowBtns.forEach((b, c) => {
+        const x0 = startX + Math.round(c * B.tw), x1 = startX + Math.round((c + 1) * B.tw);
+        drawTile(ctx, b, x0, curY, x1 - x0, B.th);
+      });
+      curY += B.th;
+      if (r % 2 === 1) await nextFrame();
+    }
+  }
+
+  if (!profile) drawNguyenPhamBrandOnCollage(ctx, L.baseW, Math.round(550 * L.k), true);
+
+  if (!isAdminActive()) {
+    const wmBottom = profile
+      ? (L.pHeight - ((!L.isShortProfile && L.rowItems.length > 0) ? L.rowH + L.rowGap : 0))
+      : 0;
+    ctx.save();
+    ctx.translate(profile ? L.offX : (W - L.baseW), 0);
+    drawMandatoryServiceText(ctx, profile ? L.pDrawW : L.baseW, wmBottom);
+    ctx.restore();
+  }
+
+  const blob = await new Promise(res => { try { canvas.toBlob(b => res(b), 'image/png'); } catch (e) { res(null); } });
+  return blob ? { blob, W: L.canvasW, H: L.totalH, cols: L.cols } : null;
+}
+
+let _isRendering = false;
+
+// Ghi nhớ chế độ ghép đã chọn
+const LAYOUT_KEY = 'np_layout_mode_v32';
+function onLayoutModeChange() {
+  const mode = document.getElementById('layoutMode').value;
+  document.getElementById('wideOpts').style.display = mode === 'wide' ? 'block' : 'none';
+  try {
+    localStorage.setItem(LAYOUT_KEY, JSON.stringify({
+      mode,
+      factor: document.getElementById('wideFactor').value,
+      wideProfileMode: document.getElementById('wideProfileMode').value
+    }));
+  } catch (e) {}
+}
+(function restoreLayoutMode() {
+  try {
+    const s = JSON.parse(localStorage.getItem(LAYOUT_KEY) || localStorage.getItem('np_layout_mode_v31'));
+    if (s) {
+      if (s.mode === 'wide' || s.mode === 'classic') document.getElementById('layoutMode').value = s.mode;
+      if (s.factor && [...document.getElementById('wideFactor').options].some(o => o.value === s.factor)) document.getElementById('wideFactor').value = s.factor;
+      if (s.wideProfileMode && [...document.getElementById('wideProfileMode').options].some(o => o.value === s.wideProfileMode)) document.getElementById('wideProfileMode').value = s.wideProfileMode;
+    }
+  } catch (e) {}
+  document.getElementById('wideOpts').style.display = document.getElementById('layoutMode').value === 'wide' ? 'block' : 'none';
+})();
+
+async function generateMasterImage() {
+  if (_isRendering) return;
+  _isRendering = true;
+  const renderBtn = document.getElementById('btnRender');
+  renderBtn.disabled = true;
+  try {
+    setStatus("⏳ Đang ghép ảnh chuẩn .PNG ...", "#facc15");
+    await nextFrame();
+
+    const profile = store.profile[0] ? store.profile[0].img : null;
+    const stats = store.stats[0] ? store.stats[0].img : null;
+    const gemImg = store.gem[0] ? store.gem[0].img : null;
+
+    const skins = store.skins.length > 0 ? [...EXC.skins] : [];
+    const buttons = store.buttons.length > 0 ? [...EXC.buttons] : [];
+    const minions = store.minions.length > 0 ? [...EXC.minions] : [];
+    const recalls = store.recalls.length > 0 ? [...EXC.recalls] : [];
+    const speeds = store.speeds.length > 0 ? [...EXC.speeds] : [];
+    const broadcasts = store.broadcasts.length > 0 ? [...EXC.broadcasts] : [];
+    const bgs = extractOwnedBgs(store.bgs);
+    const squares = [...minions, ...recalls, ...speeds, ...broadcasts];
+
+    if (!profile && skins.length === 0 && buttons.length === 0 && bgs.length === 0 && squares.length === 0) {
+      setStatus("⚠️ Bạn chưa chọn bức ảnh nào! Hãy thêm ảnh trước khi ghép.", "#f87171");
+      return;
+    }
+
+    const P = {
+      profile, stats, gemImg, skins, buttons, bgs, squares,
+      colsOut: parseInt(document.getElementById('colsOut').value),
+      accCode: document.getElementById('accCode').value.trim(),
+      winrateFilter: document.getElementById('winrateFilter').value,
+      profileBottomCrop: document.getElementById('profileBottomCrop').value,
+      cropPct: parseFloat(document.getElementById('rngCropPct').value) || 76,
+      wideProfileMode: document.getElementById('wideProfileMode').value
+    };
+
+    const wide = document.getElementById('layoutMode').value === 'wide';
+    let f = 1;
+    if (wide) {
+      const sel = document.getElementById('wideFactor').value;
+      if (sel === 'auto') {
+        const cands = [1, 1.5, 2, 2.5, 3, 3.5, 4];
+        f = cands[cands.length - 1];
+        for (const c of cands) {
+          const pr = planCollage(P, 1800, c);
+          if (pr.totalH / pr.canvasW <= 1.3) { f = c; break; }
+        }
+      } else {
+        f = parseFloat(sel) || 2;
+      }
+    }
+
+    let W = 1800;
+    const probe = planCollage(P, W, f);
+    const area = probe.canvasW * probe.totalH;
+    if (area > MAX_CANVAS_PIXELS || probe.totalH > MAX_CANVAS_SIDE || probe.canvasW > MAX_CANVAS_SIDE) {
+      const fct = Math.min(Math.sqrt(MAX_CANVAS_PIXELS / area), MAX_CANVAS_SIDE / probe.totalH, MAX_CANVAS_SIDE / probe.canvasW);
+      W = Math.max(f > 1 ? 600 : 900, Math.floor(W * fct / 10) * 10);
+    }
+
+    let result = null;
+    const minW = f > 1 ? 560 : 700;
+    const attempts = [W, Math.round(W * 0.8 / 10) * 10, Math.round(W * 0.64 / 10) * 10].filter(w => w >= minW);
+    for (const w of attempts) {
+      try { result = await renderCollage(P, w, f); } catch (e) { console.error(e); result = null; }
+      if (result) break;
+      setStatus("⏳ Máy thiếu bộ nhớ, đang thử ghép lại với kích thước nhỏ hơn...", "#facc15");
+      await nextFrame();
+    }
+    if (!result) {
+      setStatus(wide
+        ? "⚠️ Không đủ bộ nhớ để ghép ảnh rộng. Hãy chọn độ rộng nhỏ hơn, 12–16 Skin / hàng, hoặc dùng chế độ Cổ điển rồi thử lại."
+        : "⚠️ Không đủ bộ nhớ để ghép. Hãy chọn 12–16 Skin / hàng hoặc bớt số ảnh rồi thử lại.", "#f87171");
+      return;
+    }
+
+    if (currentPngBlobUrl) URL.revokeObjectURL(currentPngBlobUrl);
+    currentPngBlob = result.blob;
+    currentPngBlobUrl = URL.createObjectURL(result.blob);
+    const resultImg = document.getElementById('resultImg');
+    resultImg.src = currentPngBlobUrl;
+    resultImg.style.display = "block";
+    document.getElementById('saveGuide').style.display = "block";
+    const mb = (result.blob.size / 1048576).toFixed(1);
+    const modeTxt = f > 1 ? `Ảnh rộng ×${f} (${result.cols} skin/hàng)` : 'Cổ điển';
+    setStatus(
+      `🎉 Đã xuất ảnh .PNG hoàn chỉnh! [${modeTxt}] (${skins.length} Skin | ${buttons.length} Nút | ${minions.length} Lính | ${recalls.length + speeds.length + broadcasts.length} Hiệu ứng | ${bgs.length} Nền) — ${result.W}×${result.H}px, ${mb}MB`,
+      "#10b981"
+    );
+  } catch (err) {
+    console.error(err);
+    setStatus("⚠️ Có lỗi khi ghép ảnh: " + (err && err.message ? err.message : err), "#f87171");
+  } finally {
+    _isRendering = false;
+    renderBtn.disabled = false;
+  }
+}
+
+document.getElementById('btnRender').addEventListener('click', generateMasterImage);
+
+// ============================================================================
+// LƯU ẢNH — iPhone: bảng chia sẻ "Lưu hình ảnh" · Android: tải về / giữ ảnh · Máy tính: tải file
+// ============================================================================
+const UA = navigator.userAgent || '';
+const IS_IOS = /iPad|iPhone|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const IS_ANDROID = /Android/i.test(UA);
+const IS_MOBILE = IS_IOS || IS_ANDROID;
+const IS_INAPP = /Zalo|FBAN|FBAV|FB_IAB|Instagram|Messenger|Line\//i.test(UA);
+
+function showViewer() {
+  if (!currentPngBlobUrl) return;
+  document.getElementById('viewerImg').src = currentPngBlobUrl;
+  document.getElementById('viewerOverlay').classList.add('show');
+}
+function hideViewer() { document.getElementById('viewerOverlay').classList.remove('show'); }
+document.getElementById('viewerClose').addEventListener('click', hideViewer);
+
+function downloadViaAnchor(fileName) {
+  const a = document.createElement('a');
+  a.download = fileName;
+  a.href = currentPngBlobUrl;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+document.getElementById('btnDownloadPng').addEventListener('click', async function() {
+  if (!currentPngBlob || !currentPngBlobUrl) {
+    setStatus("⚠️ Hãy bấm nút 'GHÉP HOÀN CHỈNH' trước khi tải!", "#f87171");
+    return;
+  }
+  const fileName = (document.getElementById('accCode').value.trim() || 'NguyenPham_Acc').replace(/[\\/:*?"<>|]+/g, '_') + '.png';
+
+  if (IS_IOS && !IS_INAPP && navigator.canShare && typeof File === 'function') {
+    try {
+      const file = new File([currentPngBlob], fileName, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        setStatus('✅ Đã mở bảng chia sẻ — chọn "Lưu hình ảnh" để lưu vào Ảnh.');
+        return;
+      }
+    } catch (e) {
+      if (e && e.name === 'AbortError') { setStatus('ℹ️ Bạn đã đóng bảng lưu. Bấm lại nút để lưu ảnh.', '#facc15'); return; }
+      console.warn('share failed', e);
+    }
+    showViewer();
+    return;
+  }
+
+  if (IS_MOBILE && IS_INAPP) { showViewer(); return; }
+
+  downloadViaAnchor(fileName);
+  if (IS_ANDROID) {
+    setStatus('✅ Đã tải ảnh về điện thoại (thư mục Download). Mở Thư viện / Google Ảnh ➔ album Download để xem. Nếu không thấy, bấm "MỞ ẢNH" rồi nhấn giữ ảnh ➔ Tải hình ảnh xuống.');
+  }
+});
+
+document.getElementById('btnOpenTab').addEventListener('click', function() {
+  if (!currentPngBlobUrl) {
+    setStatus("⚠️ Hãy bấm nút 'GHÉP HOÀN CHỈNH' trước!", "#f87171");
+    return;
+  }
+  if (IS_MOBILE) { showViewer(); return; }
+  window.open(currentPngBlobUrl, '_blank');
+});
+</script>
+
+</body>
+</html>
